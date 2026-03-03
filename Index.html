@@ -2,25 +2,107 @@
 <html>
       <head>
         <base target="_top">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
         <style>
-          body { font-family: Arial; margin: 20px; }
-          button {
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 15px;
+            background: #f5f7fa;
+          }
+
+          h2 {
+            margin-bottom: 10px;
+          }
+
+          .stats {
             font-size: 16px;
-            padding: 8px 16px;
-            margin-top: 15px;
+            margin-bottom: 15px;
+          }
+
+          /* LISTE JOUEURS */
+          #liste {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px;
+            margin-bottom: 20px;
+          }
+
+          .player-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+          }
+
+          .player-card:hover {
+            background: #e8f0fe;
+          }
+
+          .player-card input {
+            transform: scale(1.4);
+            cursor: pointer;
+          }
+
+          .player-card:has(input:checked) {
+            background: #d2e3fc;
+            border-color: #1a73e8;
+          }
+
+          .player-name {
+            font-size: 15px;
+            font-weight: 500;
+          }
+
+          button {
+            width: 100%;
+            font-size: 18px;
+            padding: 12px;
+            margin-top: 10px;
             background: #1a73e8;
             color: white;
             border: none;
-            border-radius: 6px;
-          }
-          .team {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
             border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
           }
+
+          button:hover {
+            background: #1557b0;
+          }
+
+          /* EQUIPES */
+          #result {
+            margin-top: 20px;
+            display: grid;
+            gap: 15px;
+          }
+
+          .team {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+          }
+
+          .team strong {
+            font-size: 18px;
+          }
+
+          @media (min-width: 768px) {
+            #result {
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+          }
+
         </style>
       </head>
+
       <body>
 
         <h2>⚽ Sélection des joueurs</h2>
@@ -47,9 +129,12 @@
             let html = "";
 
             joueurs.forEach(j => {
-              html += "<div>";
-              html += "<input type='checkbox' value='" + j.index + "' onchange='updateStats()'> " + j.nom;
-              html += "</div>";
+              html += `
+                <label class="player-card">
+                  <input type="checkbox" value="${j.index}" onchange="updateStats()">
+                  <span class="player-name">${j.nom}</span>
+                </label>
+              `;
             });
 
             document.getElementById("liste").innerHTML = html;
