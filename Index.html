@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+      <head>
+        <base target="_top">
+        <style>
+          body { font-family: Arial; margin: 20px; }
+          button {
+            font-size: 16px;
+            padding: 8px 16px;
+            margin-top: 15px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+          }
+          .team {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+          }
+        </style>
+      </head>
+      <body>
+
+        <h2>⚽ Sélection des joueurs</h2>
+
+        <div class="stats">
+          👥 Joueurs sélectionnés : <strong id="count">0</strong><br>
+        </div>
+
+        <button onclick="generer()">Générer</button>
+
+        <div id="liste"></div>
+
+        <div id="result"></div>
+
+        <script>
+
+          let joueursData = [];
+
+          // Charger les joueurs
+          google.script.run.withSuccessHandler(function(joueurs) {
+
+            joueursData = joueurs;
+
+            let html = "";
+
+            joueurs.forEach(j => {
+              html += "<div>";
+              html += "<input type='checkbox' value='" + j.index + "' onchange='updateStats()'> " + j.nom;
+              html += "</div>";
+            });
+
+            document.getElementById("liste").innerHTML = html;
+
+          }).getJoueurs();
+
+          function updateStats() {
+
+            const checked = document.querySelectorAll("input[type='checkbox']:checked");
+
+            let total = 0;
+
+            checked.forEach(cb => {
+              total += parseFloat(cb.dataset.note);
+            });
+
+            const count = checked.length;
+            const moyenne = count > 0 ? (total / count) : 0;
+
+            document.getElementById("count").innerText = count;
+            (2);
+          }
+
+          function generer() {
+
+            const checked = document.querySelectorAll("input[type='checkbox']:checked");
+            let selection = [];
+
+            checked.forEach(cb => {
+              selection.push(parseInt(cb.value));
+            });
+
+            if (selection.length < 7) {
+              document.getElementById("result").innerHTML =
+                "⚠️ Minimum 7 joueurs requis.";
+              return;
+            }
+
+            document.getElementById("result").innerHTML = "Génération...";
+
+            google.script.run
+              .withSuccessHandler(function(result) {
+                  if (result.error) {
+                    document.getElementById("result").innerHTML = "⚠️ " + result.error;
+                    return;
+                  }
+                afficherEquipes(result);
+              })
+              .genererEquipes(selection);
+          }
+
+          function afficherEquipes(result) {
+
+            const teams = result.teams;
+            const rawAvg = result.rawAvg;
+            const adjAvg = result.adjAvg;
+
+            let html = "<h3>Equipes générées</h3>";
+
+            teams.forEach((team, index) => {
+
+              html += "<div class='team'>";
+              html += "<strong>Equipe " + (index + 1) + "</strong><br><br>";
+
+              html += "⭐ Moyenne brute : <strong>" + rawAvg[index].toFixed(2) + "</strong> / 5<br>";
+              html += "🔥 Moyenne ajustée : <strong>" + adjAvg[index].toFixed(2) + "</strong> / 5<br><br>";
+
+              team.forEach(player => {
+                html += player + "<br>";
+              });
+
+              html += "</div>";
+            });
+
+            document.getElementById("result").innerHTML = html;
+          }
+
+        </script>
+
+      </body>
+    </html>
