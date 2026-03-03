@@ -237,7 +237,7 @@ function assignPlayerToTeam(
   teamCount[teamIndex]++;
 
   equipes[teamIndex].push(
-    player.name + " (" + posteChoisi + ") - " + noteAdj.toFixed(2)
+    player.name + " (" + posteChoisi + ") "
   );
 }
 

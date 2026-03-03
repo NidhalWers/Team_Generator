@@ -2,7 +2,7 @@
 <html>
       <head>
         <base target="_top">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <style>
           body {
@@ -20,43 +20,49 @@
             margin-bottom: 15px;
           }
 
+          #count{
+            font-size: 30px;
+          }
+
           /* LISTE JOUEURS */
           #liste {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 8px;
+            gap: 12px;
             margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
           }
 
           .player-card {
             background: white;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 12px;
             border: 1px solid #ddd;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s ease;
+            min-height: 100px; /* tactile confortable */
           }
 
           .player-card:hover {
-            background: #e8f0fe;
+            background: #eef4ff;
+            border-color: #1a73e8;
           }
 
           .player-card input {
-            transform: scale(1.4);
+            transform: scale(1.5);
             cursor: pointer;
+          }
+
+          .player-name {
+            font-size: 40px;
+            font-weight: 500;
           }
 
           .player-card:has(input:checked) {
             background: #d2e3fc;
             border-color: #1a73e8;
-          }
-
-          .player-name {
-            font-size: 15px;
-            font-weight: 500;
           }
 
           button {
