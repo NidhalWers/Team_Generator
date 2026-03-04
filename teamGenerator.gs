@@ -62,7 +62,7 @@ function genererEquipes(selectedIndexes) {
 
   for (let sim = 0; sim < 300; sim++) {
 
-    const shuffled = shuffleArray([...joueurs]);
+    const poolOfPlayers = getPoolOfPlayers(joueurs, withEquipePartielle);
 
     const equipes = [];
     const teamScore = new Array(nbEquipes).fill(0);
@@ -78,13 +78,13 @@ function genererEquipes(selectedIndexes) {
       postesRestants[i] = [1,2,1,2,1]; // G DEF MIL AIL BUT
     }
 
-    const totalJoueursARepartir = withEquipePartielle ? nbEquipesCompletes * 7 : shuffled.length;
+    const totalJoueursARepartir = withEquipePartielle ? nbEquipesCompletes * 7 : poolOfPlayers.length;
 
     let index = 0;
     // ===== EQUIPES COMPLETES =====
     while (index < totalJoueursARepartir) {
 
-      const player = shuffled[index];
+      const player = poolOfPlayers[index];
       const teamIndex = index % nbEquipesCompletes;
 
       assignPlayerToTeam(
@@ -108,10 +108,10 @@ function genererEquipes(selectedIndexes) {
     if (withEquipePartielle) {
       var lastTeamIndex = nbEquipes - 1;
 
-      while (index < shuffled.length) {
+      while (index < poolOfPlayers.length) {
 
-        const player = shuffled[index++];
-        
+        const player = poolOfPlayers[index++];
+
         assignPlayerToTeam(
           player,
           lastTeamIndex,
@@ -216,7 +216,12 @@ function assignPlayerToTeam(
     }
   }
 
-  // le joueur en plus sera automatiquement Hors poste
+  if (teamCount[teamIndex] >= 6 && postesRestants[teamIndex][0] !== 0) { // si le poste de gardien n'est pas déjà occupé
+    // le joueur en plus ne sera pas Hors Poste
+    noteAdj = player.note;
+    posteChoisi = "7eme";
+  }
+
   teamScore[teamIndex] += noteAdj;
   teamRawScore[teamIndex] += player.note;
   teamCount[teamIndex]++;

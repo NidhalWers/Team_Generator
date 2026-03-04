@@ -34,6 +34,8 @@ function readPlayers(selectedIndexes, data){
       });
     }
   }
+
+  return joueurs;
 }
 
 function getStandardDeviation(values) {
@@ -54,4 +56,5 @@ function shuffleArray(array) {
   }
   return array;
 }
+
 
