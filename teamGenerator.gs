@@ -10,22 +10,7 @@ function genererEquipes(selectedIndexes) {
 
   const data = sheetJoueurs.getDataRange().getValues();
   
-  const joueurs = [];
-
-  // Lecture joueurs présents (à partir ligne 2)
-  for (let i = 1; i < data.length; i++) {
-
-    const nom = data[i][1];
-
-    // On utilise uniquement la sélection WebApp
-    if (selectedIndexes.includes(i)) {
-      joueurs.push({
-        name: data[i][1],
-        note: data[i][2],
-        postes: [data[i][3], data[i][4], data[i][5], data[i][6]]
-      });
-    }
-  }
+  const joueurs = readPlayers(selectedIndexes, data);
 
   const count = joueurs.length;
 
@@ -236,9 +221,12 @@ function assignPlayerToTeam(
   teamRawScore[teamIndex] += player.note;
   teamCount[teamIndex]++;
 
-  equipes[teamIndex].push(
-    player.name + " (" + posteChoisi + ") "
-  );
+  equipes[teamIndex].push({
+    name: player.name,
+    poste: posteChoisi,
+    noteRaw: player.note,
+    noteAdj: noteAdj
+  });
 }
 
 function getPosteIndex(poste) {
