@@ -63,7 +63,6 @@ function genererEquipes(selectedIndexes) {
   for (let sim = 0; sim < 300; sim++) {
 
     const poolOfPlayers = getPoolOfPlayers(joueurs, withEquipePartielle);
-    Logger.log("poolOfPlayers : " + poolOfPlayers);
 
     const equipes = [];
     const teamScore = new Array(nbEquipes).fill(0);
@@ -244,25 +243,4 @@ function getPosteIndex(poste) {
     case "BUT": return 4;
     default: return -1;
   }
-}
-
-function getTeamIndexRandomDistribution(index, nbEquipesCompletes){
-  return Math.floor(Math.random() * nbEquipesCompletes);
-}
-
-function getTeamIndexModuloDistribution(index, nbEquipesCompletes){
-  return index % nbEquipesCompletes
-}
-
-function getTeamIndexSnakeDistribution(index, nbEquipesCompletes){
-	const cycle = Math.floor(index / nbEquipesCompletes);
-	let teamIndex;
-
-	if (cycle % 2 === 0) {
-	  teamIndex = index % nbEquipesCompletes;
-	} else {
-	  teamIndex = nbEquipesCompletes - 1 - (index % nbEquipesCompletes);
-	}
-
-	return teamIndex;
 }
