@@ -1,25 +1,31 @@
 function getPoolOfPlayers(joueurs, withEquipePartielle){
-  const shuffled = shuffleArray([...joueurs]);
 
   if (withEquipePartielle){
     // lorsqu'il y a une équipe partielle, on ne classe pas les joueurs
     // afin d'éviter que les meilleurs joueurs se trouvent tous dans l'équipe partielle
     // donc il n'y aura pas d'optimisation de poste dans ce cas
-    return shuffled;
+    return shuffleArray([...joueurs]);
   }
 
-  // Tri par flexibilité croissante
-  shuffled.sort((a, b) => {
-    const diff = countUniquePostes(a) - countUniquePostes(b);
-    if (diff !== 0) return diff;
+  const singlePoste = [];
+  const multiPoste = [];
 
-    // Si même flexibilité → prioriser meilleure note
-    return b.note - a.note;
+  joueurs.forEach(player => {
+
+    const versatility = countUniquePostes(player);
+    if (versatility === 1) {
+      singlePoste.push(player);
+    } else {
+      multiPoste.push(player);
+    }
+
   });
 
-  return shuffled;
-}
+  shuffleArray(singlePoste);
+  shuffleArray(multiPoste);
 
+  return [...singlePoste, ...multiPoste];
+}
 
 function countUniquePostes(player) {
   const set = new Set();
