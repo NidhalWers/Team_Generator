@@ -85,7 +85,7 @@ function genererEquipes(selectedIndexes) {
     while (index < totalJoueursARepartir) {
 
       const player = poolOfPlayers[index];
-      const teamIndex = getTeamIndexRandomDistribution(index, nbEquipesCompletes);
+      const teamIndex = getTeamIndexModuloDistribution(index, nbEquipesCompletes);
 
       assignPlayerToTeam(
         player,
@@ -111,7 +111,7 @@ function genererEquipes(selectedIndexes) {
       while (index < poolOfPlayers.length) {
 
         const player = poolOfPlayers[index++];
-
+        
         assignPlayerToTeam(
           player,
           lastTeamIndex,
@@ -219,7 +219,7 @@ function assignPlayerToTeam(
   if (teamCount[teamIndex] >= 6 && postesRestants[teamIndex][0] !== 0) { // si le poste de gardien n'est pas déjà occupé
     // le joueur en plus ne sera pas Hors Poste
     noteAdj = player.note;
-    posteChoisi = "7eme";
+    posteChoisi = (teamCount[teamIndex] + 1)+"eme";
   }
 
   teamScore[teamIndex] += noteAdj;

@@ -15,7 +15,7 @@ function getTeamIndexSnakeDistribution(index, nbEquipesCompletes){
 	} else {
 	  teamIndex = nbEquipesCompletes - 1 - (index % nbEquipesCompletes);
 	}
-
+	
 	return teamIndex;
 }
 

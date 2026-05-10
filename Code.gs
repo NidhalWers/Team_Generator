@@ -13,5 +13,10 @@ function onOpen() {
 }
 
 function doGet() {
-  return HtmlService.createHtmlOutputFromFile('Index');
+  const template = HtmlService.createTemplateFromFile('Index')
+  return template.evaluate();
+}
+
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }

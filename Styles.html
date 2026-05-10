@@ -1,0 +1,202 @@
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 15px;
+    background: #f5f7fa;
+  }
+
+  h2 {
+    margin-bottom: 10px;
+  }
+
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    background: white;
+    padding: 10px 12px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  .top-left {
+    font-size: 35px;
+    font-weight: 500;
+  }
+
+  .btn-generate {
+    padding: 8px 14px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: none;
+    background: #1a73e8;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .btn-generate:hover {
+    background: #1557b0;
+  }
+
+  /* LISTE JOUEURS */
+  #liste {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .player-card {
+    background: white;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 100px;
+  }
+
+  .player-card:hover {
+    background: #eef4ff;
+    border-color: #1a73e8;
+  }
+
+  .player-card input {
+    transform: scale(1.5);
+    cursor: pointer;
+  }
+
+  .player-name {
+    font-size: 40px;
+    font-weight: 500;
+  }
+
+  .player-card:has(input:checked) {
+    background: #d2e3fc;
+    border-color: #1a73e8;
+  }
+
+  button {
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+
+    border-radius: 999px;
+    border: none;
+
+    background: #1a73e8;
+    color: white;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  button:hover {
+    background: #1557b0;
+    transform: translateY(-1px);
+  }
+
+  /* EQUIPES */
+  #result {
+    margin-top: 20px;
+    display: grid;
+    gap: 15px;
+  }
+
+  .team {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  .team strong {
+    font-size: 18px;
+  }
+
+  .team-avg {
+    color: black;
+    font-weight: 600;
+  }
+
+  @media (min-width: 768px) {
+    #result {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+  }
+
+  /* PLAYER RESULT */
+  .hidden {
+    display: none;
+  }
+
+  .player-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 15px;
+  }
+
+  .note-adj {
+    font-weight: 600;
+    color: #1a73e8;
+  }
+
+  .note-diff {
+    margin-left: 6px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .diff-positive {
+    color: #1e8e3e; /* vert */
+  }
+
+  .diff-negative {
+    color: #d93025; /* rouge */
+  }
+
+  .diff-neutral {
+    color: #777;
+  }
+
+  // loader
+  .loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 5px solid #ccc;
+    border-top: 5px solid #4CAF50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+</style>
+

@@ -1,11 +1,11 @@
 function getPoolOfPlayers(joueurs, withEquipePartielle){
 
-  if (withEquipePartielle){
+  /*if (withEquipePartielle){
     // lorsqu'il y a une équipe partielle, on ne classe pas les joueurs
     // afin d'éviter que les meilleurs joueurs se trouvent tous dans l'équipe partielle
     // donc il n'y aura pas d'optimisation de poste dans ce cas
     return shuffleArray([...joueurs]);
-  }
+  }*/
 
   const singlePoste = [];
   const multiPoste = [];

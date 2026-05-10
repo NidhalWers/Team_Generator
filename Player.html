@@ -1,0 +1,41 @@
+<script>
+  let joueursData = [];
+
+  // Charger les joueurs
+  google.script.run.withSuccessHandler(function(joueurs) {
+
+    joueursData = joueurs;
+
+    let html = "";
+
+    joueurs.forEach(j => {
+      html += `
+        <label class="player-card">
+          <input type="checkbox" value="${j.index}" onchange="updateStats()">
+          <span class="player-name">${j.nom}</span>
+        </label>
+      `;
+    });
+
+    document.getElementById("liste").innerHTML = html;
+
+  }).getJoueurs();
+
+  function updateStats() {
+
+    const checked = document.querySelectorAll("input[type='checkbox']:checked");
+
+    let total = 0;
+
+    checked.forEach(cb => {
+      total += parseFloat(cb.dataset.note);
+    });
+
+    const count = checked.length;
+    const moyenne = count > 0 ? (total / count) : 0;
+
+    document.getElementById("count").innerText = count;
+    (2);
+  }
+
+</script>
