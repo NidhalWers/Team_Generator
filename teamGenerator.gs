@@ -1,16 +1,9 @@
-function genererEquipes(selectedIndexes) {
-  Logger.log("selectedIndexes : " + selectedIndexes);
+function genererEquipes(selectedIds) {
+  Logger.log("selectedIds : " + selectedIds);
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheetJoueurs = ss.getSheetByName("Joueurs");
 
-    
-  let sheetEquipes = ss.getSheetByName("Equipes");
-  if (sheetEquipes) ss.deleteSheet(sheetEquipes);
-  sheetEquipes = ss.insertSheet("Equipes");
-
-  const data = sheetJoueurs.getDataRange().getValues();
-  
-  const joueurs = readPlayers(selectedIndexes, data);
+  const data = getSheetData("Joueurs", 0);
+  const joueurs = readPlayers(selectedIds, data);
 
   const count = joueurs.length;
 
@@ -19,6 +12,10 @@ function genererEquipes(selectedIndexes) {
       error: "Pas assez de joueurs sélectionnés"
     };
   }
+    
+  let sheetEquipes = ss.getSheetByName("Equipes");
+  if (sheetEquipes) ss.deleteSheet(sheetEquipes);
+  sheetEquipes = ss.insertSheet("Equipes");
 
    // ===== STRUCTURE =====
   const nbEquipesCompletes = Math.floor(count / 7);
@@ -227,6 +224,7 @@ function assignPlayerToTeam(
   teamCount[teamIndex]++;
 
   equipes[teamIndex].push({
+    id: player.id,
     name: player.name,
     poste: posteChoisi,
     noteRaw: player.note,

@@ -11,7 +11,7 @@
     joueurs.forEach(j => {
       html += `
         <label class="player-card">
-          <input type="checkbox" value="${j.index}" onchange="updateStats()">
+          <input type="checkbox" value="${j.id}" onchange="updateStats()">
           <span class="player-name">${j.nom}</span>
         </label>
       `;

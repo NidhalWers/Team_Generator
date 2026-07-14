@@ -2,13 +2,13 @@
   function generer() {
 
     const checked = document.querySelectorAll("input[type='checkbox']:checked");
-    let selection = [];
+    let selectedIds = [];
 
     checked.forEach(cb => {
-      selection.push(parseInt(cb.value));
+      selectedIds.push(cb.value);
     });
 
-    if (selection.length < 7) {
+    if (selectedIds.length < 7) {
       document.getElementById("result").innerHTML =
         "⚠️ Minimum 7 joueurs requis.";
       return;
@@ -26,7 +26,7 @@
           }
         afficherEquipes(result);
       })
-      .genererEquipes(selection);
+      .genererEquipes(selectedIds);
   }
 
   function afficherEquipes(result) {

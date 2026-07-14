@@ -1,41 +1,33 @@
-function getJoueurs() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName("Joueurs");
+function getSheetData(sheetName, headerIndex) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+
+  if (!sheet) {
+    throw new Error(`La feuille "${sheetName}" est introuvable.`);
+  }
+
   const data = sheet.getDataRange().getValues();
 
-  let joueurs = [];
-
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][1]) {
-      joueurs.push({
-        index: i,
-        nom: data[i][1]
-      });
-    }
+  if (data.length <= headerIndex) {
+    return [];
   }
 
-  return joueurs;
+  const headers = data[headerIndex];
+  const rows = data.slice(headerIndex+1);
+
+  return rows.map(row => {
+    let obj = {};
+    headers.forEach((header, index) => {
+      if (header !== "") {
+        obj[String(header).trim()] = row[index];
+      }
+    });
+
+    return obj;
+  });
 }
 
-function readPlayers(selectedIndexes, data){
-  const joueurs = [];
-
-  // Lecture joueurs présents (à partir ligne 2)
-  for (let i = 1; i < data.length; i++) {
-
-    const nom = data[i][1];
-
-    // On utilise uniquement la sélection WebApp
-    if (selectedIndexes.includes(i)) {
-      joueurs.push({
-        name: data[i][1],
-        note: data[i][2],
-        postes: [data[i][3], data[i][4], data[i][5], data[i][6]]
-      });
-    }
-  }
-
-  return joueurs;
+function normalizeString(value) {
+  return String(value ?? "").trim();
 }
 
 function getStandardDeviation(values) {
