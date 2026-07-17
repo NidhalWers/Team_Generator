@@ -7,8 +7,9 @@ function main(){
 
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu("⚽ Equipes")
+    .createMenu("🛠️ Custom handling")
     .addItem("Générer les équipes", "genererEquipes")
+    .addItem("Initialize sheets","initializeSpreadsheet")
     .addToUi();
 }
 
