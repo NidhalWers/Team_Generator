@@ -180,8 +180,8 @@ function testGetSheetData() {
       .setValues([
         ["Information ignorée", "", ""],
         ["Id", "Joueur", "Note"],
-        ["1", "Alice", 4],
-        ["2", "Bob", 3.5]
+        ["first_id", "Alice", 4],
+        ["second_id", "Bob", 3.5]
       ]);
 
     /*
@@ -193,12 +193,12 @@ function testGetSheetData() {
     assertDeepEquals(
       [
         {
-          Id: "1",
+          Id: "first_id",
           Joueur: "Alice",
           Note: 4
         },
         {
-          Id: "2",
+          Id: "second_id",
           Joueur: "Bob",
           Note: 3.5
         }
@@ -222,7 +222,7 @@ function testGetSheetDataIgnoresEmptyHeaders() {
       .getRange(1, 1, 2, 3)
       .setValues([
         ["Id", "", "Joueur"],
-        ["42", "Valeur à ignorer", "Alice"]
+        ["id_whatever", "Valeur à ignorer", "Alice"]
       ]);
 
     const result = getSheetData(sheetName, 0);
@@ -230,7 +230,7 @@ function testGetSheetDataIgnoresEmptyHeaders() {
     assertDeepEquals(
       [
         {
-          Id: "42",
+          Id: "id_whatever",
           Joueur: "Alice"
         }
       ],
