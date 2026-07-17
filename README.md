@@ -240,11 +240,13 @@ Everything runs inside Google Sheets:
 
 # Roadmap
 
+- [x] Team generation from player rating
 - [x] Responsive Web App
-- [x] Position optimization
+- [x] Player positioning
+- [x] Unit tests
 - [x] Spreadsheet initialization
-- [ ] Unit tests
 - [ ] Player's addition from Web App
+- [ ] Position optimization
 
 ---
 

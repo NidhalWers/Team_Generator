@@ -1,5 +1,5 @@
-function getTeamIndexRandomDistribution(index, nbEquipesCompletes){
-  return Math.floor(Math.random() * nbEquipesCompletes);
+function getTeamIndexRandomDistribution(index, nbEquipesCompletes, randomFunction = Math.random){
+  return Math.floor(randomFunction() * nbEquipesCompletes);
 }
 
 function getTeamIndexModuloDistribution(index, nbEquipesCompletes){
@@ -19,7 +19,7 @@ function getTeamIndexSnakeDistribution(index, nbEquipesCompletes){
 	return teamIndex;
 }
 
-function getTeamIndexLessPlayerDistribution(teamCount, nbEquipesCompletes) {
+function getTeamIndexLessPlayerDistribution(teamCount, nbEquipesCompletes, randomFunction = Math.random) {
 
   const min = Math.min(...teamCount.slice(0, nbEquipesCompletes));
 
@@ -31,10 +31,10 @@ function getTeamIndexLessPlayerDistribution(teamCount, nbEquipesCompletes) {
     }
   }
 
-  return candidats[Math.floor(Math.random() * candidats.length)];
+  return candidats[Math.floor(randomFunction() * candidats.length)];
 }
 
-function getTeamIndexWeakestDistribution(teamScore, nbEquipesCompletes){
+function getTeamIndexWeakestDistribution(teamScore, nbEquipesCompletes, randomFunction = Math.random){
 
   const minScore = Math.min(...teamScore.slice(0, nbEquipesCompletes));
 
@@ -46,5 +46,5 @@ function getTeamIndexWeakestDistribution(teamScore, nbEquipesCompletes){
     }
   }
 
-  return candidats[Math.floor(Math.random() * candidats.length)];
+  return candidats[Math.floor(randomFunction() * candidats.length)];
 }

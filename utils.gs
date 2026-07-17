@@ -41,9 +41,9 @@ function getStandardDeviation(values) {
   return Math.sqrt(variance);
 }
 
-function shuffleArray(array) {
+function shuffleArray(array, randomFunction = Math.random) {
   for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(randomFunction() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
