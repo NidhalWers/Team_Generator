@@ -1,6 +1,5 @@
 <!-- MODALE DES ÉQUIPES -->
-<div id="teams-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="teams-modal-title"
-  onclick="handleTeamsModalOverlayClick(event)">
+<div id="teams-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="teams-modal-title">
   <div class="modal-card teams-modal-card">
 
     <div class="modal-header teams-modal-header">
@@ -28,8 +27,8 @@
         Analyser
       </button>
 
-      <button type="button" class="btn-secondary" onclick="closeTeamsModal()">
-        Fermer
+      <button type="button" class="btn-secondary" onclick="cancelGeneratedTeams()">
+        Annuler
       </button>
 
       <button id="regenerate-teams-button" type="button" onclick="regenererEquipes()">
@@ -43,6 +42,7 @@
 
 <script>
   let teamsNotesVisible = false;
+  let hasGeneratedTeams = false;
 
 
   /**
@@ -235,6 +235,9 @@
     document
       .getElementById("teams-result")
       .innerHTML = html;
+
+    hasGeneratedTeams = true;
+    updateReopenTeamsButton();
   }
 
 
@@ -263,17 +266,19 @@
     clearTeamsModalError();
   }
 
+  function cancelGeneratedTeams() {
+    document
+      .getElementById("teams-result")
+      .innerHTML = "";
 
-  /**
-   * Ferme uniquement lorsque l'utilisateur clique sur le fond,
-   * pas lorsqu'il clique dans la carte.
-   */
-  function handleTeamsModalOverlayClick(event) {
-    if (event.target.id === "teams-modal") {
-      closeTeamsModal();
-    }
+    hasGeneratedTeams = false;
+    teamsNotesVisible = false;
+
+    updateToggleNotesButton();
+    updateReopenTeamsButton();
+
+    closeTeamsModal();
   }
-
 
   function toggleNotes() {
     teamsNotesVisible = !teamsNotesVisible;
@@ -310,6 +315,28 @@
         : "Analyser";
   }
 
+  function reopenTeamsModal() {
+    if (!hasGeneratedTeams) {
+      return;
+    }
+
+    openTeamsModal();
+  }
+
+  function updateReopenTeamsButton() {
+    const button = document.getElementById(
+      "reopen-teams-button"
+    );
+
+    if (!button) {
+      return;
+    }
+
+    button.classList.toggle(
+      "hidden",
+      !hasGeneratedTeams
+    );
+  }
 
   function setRegenerateButtonLoading(
     isLoading
