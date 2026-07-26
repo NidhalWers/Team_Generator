@@ -1,36 +1,38 @@
 <!DOCTYPE html>
 <html>
-      <head>
-        <base target="_top">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <?!= include('Styles'); ?>
-      </head>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-      <body>
+  <?!= include('Styles'); ?>
+</head>
 
-        <div class="top-bar">
-          <div class="top-left">
-            ⚽ Joueurs sélectionnés : <strong id="count">0</strong>
-          </div>
+<body>
 
-          <div class="top-right">
-            <button class="btn-generate" onclick="generer()">Générer</button>
-          </div>
-        </div>
+  <div class="top-bar">
+    <div class="top-left">
+      ⚽ Joueurs sélectionnés : <strong id="count">0</strong>
+    </div>
 
-        <div id="liste"></div>
+    <div class="top-right">
+      <button type="button" class="btn-secondary" onclick="openAddPlayerModal()">＋ Joueur</button>
+      <button class="btn-generate" onclick="generer()">Générer</button>
+    </div>
+  </div>
 
-        <div id="result"></div>
+  <div id="liste"></div>
 
-        <button onclick="toggleNotes()">Analyser</button>
+  <div id="result"></div>
 
-        <?!= include('Main'); ?>
-        <?!= include('Player'); ?>
-        <?!= include('Team'); ?>
+  <?!= include('Main'); ?>
+  <?!= include('Player'); ?>
+  <?!= include('Team'); ?>
+  <?!= include('AddPlayer'); ?>
 
-        <div id="loader" class="loader-overlay" style="display:none;">
-          <div class="spinner"></div>
-        </div>
-      </body>
+  <div id="loader" class="loader-overlay" style="display:none;">
+    <div class="spinner"></div>
+  </div>
+</body>
+
 </html>
