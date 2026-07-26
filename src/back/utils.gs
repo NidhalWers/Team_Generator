@@ -49,4 +49,85 @@ function shuffleArray(array, randomFunction = Math.random) {
   return array;
 }
 
+/**
+ * Retourne les numéros de colonnes, indexés à partir de 1,
+ * en utilisant les intitulés des en-têtes.
+ */
+function getSheetHeaderMap(sheet, headerRow) {
+  const lastColumn = sheet.getLastColumn();
 
+  if (lastColumn === 0) {
+    throw new Error(`La feuille "${sheet.getName()}" ne possède aucun en-tête.`);
+  }
+
+  const headers = sheet
+    .getRange(headerRow, 1, 1, lastColumn)
+    .getDisplayValues()[0];
+
+  return headers.reduce(
+    (map, header, index) => {
+      const normalizedHeader = String(header).trim();
+
+      if (normalizedHeader) {
+        map[normalizedHeader] = index + 1;
+      }
+
+      return map;
+    },
+    {}
+  );
+}
+
+function readNumericColumnValues(sheet, firstDataRow, column) {
+  const lastRow = sheet.getLastRow();
+
+  if (lastRow < firstDataRow) {
+    return [];
+  }
+
+  return sheet
+    .getRange(firstDataRow, column,lastRow - firstDataRow + 1, 1)
+    .getValues()
+    .flat()
+    .filter(value => value !== "" && value !== null && Number.isFinite(Number(value)))
+    .map(Number);
+}
+
+function isHalfStep(value) {
+  return Number.isInteger(value * 2);
+}
+
+
+function getDuplicatedValues(values) {
+  const occurrences = {};
+  const duplicated = [];
+
+  values.forEach(value => {
+    occurrences[value] = (occurrences[value] || 0) + 1;
+
+    if (occurrences[value] === 2) {
+      duplicated.push(value);
+    }
+  });
+
+  return duplicated;
+}
+
+function columnNumberToLetter(columnNumber) {
+  let letter = "";
+  let number = columnNumber;
+
+  while (number > 0) {
+    const remainder = (number - 1) % 26;
+
+    letter =
+      String.fromCharCode(65 + remainder) +
+      letter;
+
+    number = Math.floor(
+      (number - 1) / 26
+    );
+  }
+
+  return letter;
+}

@@ -142,6 +142,29 @@ Press ``Generate``
 
 The application returns the optimized teams.
 
+## ➕ Adding a Player
+
+Players can be added directly from the Web App without editing the spreadsheet manually.
+
+The form asks for:
+
+- Player name
+- Level 1 position(s)
+- Level 2 position(s)
+- Level 3 position(s)
+- Level 4 position(s)
+- Manual rating
+
+A given position can only belong to one level for the same player.
+
+When the form is submitted:
+* a new numeric and unique player ID is generated;
+* a new row is added to the Joueurs sheet;
+* a matching row is added to the Notes sheet;
+* formulas and boolean values are initialized automatically;
+* the new player is immediately added to the Web App selection list.
+
+
 ---
 
 # Rating system

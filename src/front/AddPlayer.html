@@ -1,0 +1,352 @@
+<div id="add-player-modal" class="modal-overlay hidden" role="dialog" aria-modal="true"
+    aria-labelledby="add-player-title">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2 id="add-player-title">
+                Ajouter un joueur
+            </h2>
+
+            <button type="button" class="btn-icon" onclick="closeAddPlayerModal()" aria-label="Fermer">
+                ✕
+            </button>
+        </div>
+
+        <form id="add-player-form" onsubmit="submitAddPlayer(event)">
+            <label class="form-field">
+                <span>Nom du joueur</span>
+
+                <input id="new-player-name" name="name" type="text" maxlength="80" required autocomplete="off">
+            </label>
+
+            <div class="position-levels">
+
+                <fieldset class="position-level">
+                    <legend>Poste 1 — Niveau inchangé</legend>
+
+                    <div class="position-options">
+                        <label class="position-option">
+                            <input type="checkbox" name="poste1" value="G" onchange="handlePositionChange(this)">
+                            <span>G</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste1" value="DEF" onchange="handlePositionChange(this)">
+                            <span>DEF</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste1" value="MIL" onchange="handlePositionChange(this)">
+                            <span>MIL</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste1" value="AIL" onchange="handlePositionChange(this)">
+                            <span>AIL</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste1" value="BUT" onchange="handlePositionChange(this)">
+                            <span>BUT</span>
+                        </label>
+                    </div>
+                </fieldset>
+
+
+                <fieldset class="position-level">
+                    <legend>Poste 2 — Petit malus</legend>
+
+                    <div class="position-options">
+                        <label class="position-option">
+                            <input type="checkbox" name="poste2" value="G" onchange="handlePositionChange(this)">
+                            <span>G</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste2" value="DEF" onchange="handlePositionChange(this)">
+                            <span>DEF</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste2" value="MIL" onchange="handlePositionChange(this)">
+                            <span>MIL</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste2" value="AIL" onchange="handlePositionChange(this)">
+                            <span>AIL</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste2" value="BUT" onchange="handlePositionChange(this)">
+                            <span>BUT</span>
+                        </label>
+                    </div>
+                </fieldset>
+
+
+                <fieldset class="position-level">
+                    <legend>Poste 3 — Malus moyen</legend>
+
+                    <div class="position-options">
+                        <label class="position-option">
+                            <input type="checkbox" name="poste3" value="G" onchange="handlePositionChange(this)">
+                            <span>G</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste3" value="DEF" onchange="handlePositionChange(this)">
+                            <span>DEF</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste3" value="MIL" onchange="handlePositionChange(this)">
+                            <span>MIL</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste3" value="AIL" onchange="handlePositionChange(this)">
+                            <span>AIL</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste3" value="BUT" onchange="handlePositionChange(this)">
+                            <span>BUT</span>
+                        </label>
+                    </div>
+                </fieldset>
+
+
+                <fieldset class="position-level">
+                    <legend>Poste 4 — Malus important</legend>
+
+                    <div class="position-options">
+                        <label class="position-option">
+                            <input type="checkbox" name="poste4" value="G" onchange="handlePositionChange(this)">
+                            <span>G</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste4" value="DEF" onchange="handlePositionChange(this)">
+                            <span>DEF</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste4" value="MIL" onchange="handlePositionChange(this)">
+                            <span>MIL</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste4" value="AIL" onchange="handlePositionChange(this)">
+                            <span>AIL</span>
+                        </label>
+
+                        <label class="position-option">
+                            <input type="checkbox" name="poste4" value="BUT" onchange="handlePositionChange(this)">
+                            <span>BUT</span>
+                        </label>
+                    </div>
+                </fieldset>
+            </div>
+
+            <label class="form-field">
+                <span>Note manuelle</span>
+
+                <select id="new-player-note" required>
+                    <option value="">Sélectionner</option>
+                    <option value="0.5">0,5</option>
+                    <option value="1">1</option>
+                    <option value="1.5">1,5</option>
+                    <option value="2">2</option>
+                    <option value="2.5">2,5</option>
+                    <option value="3">3</option>
+                    <option value="3.5">3,5</option>
+                    <option value="4">4</option>
+                    <option value="4.5">4,5</option>
+                    <option value="5">5</option>
+                </select>
+            </label>
+
+            <div id="add-player-error" class="form-error hidden"></div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeAddPlayerModal()">
+                    Annuler
+                </button>
+
+                <button id="submit-add-player" type="submit">
+                    Ajouter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAddPlayerModal() {
+        document
+            .getElementById("add-player-modal")
+            .classList.remove("hidden");
+
+        document
+            .getElementById("new-player-name")
+            .focus();
+    }
+
+
+    function closeAddPlayerModal() {
+        document
+            .getElementById("add-player-modal")
+            .classList.add("hidden");
+
+        clearAddPlayerError();
+    }
+
+    function getSelectedPositions(levelName) {
+        return Array.from(
+            document.querySelectorAll(
+                `input[name="${levelName}"]:checked`
+            )
+        ).map(input => input.value);
+    }
+
+    function handlePositionChange(changedInput) {
+        const position = changedInput.value;
+
+        const samePositionInputs = document.querySelectorAll(
+            `.position-option input[value="${position}"]`
+        );
+
+        samePositionInputs.forEach(input => {
+            if (input === changedInput) {
+                return;
+            }
+
+            input.disabled = changedInput.checked;
+        });
+    }
+
+    function resetPositionInputs() {
+        document
+            .querySelectorAll(".position-option input")
+            .forEach(input => {
+                input.checked = false;
+                input.disabled = false;
+            });
+    }
+
+    function submitAddPlayer(event) {
+        event.preventDefault();
+
+        clearAddPlayerError();
+
+        const playerInput = {
+            name: document
+                .getElementById("new-player-name")
+                .value,
+
+            poste1: getSelectedPositions("poste1"),
+            poste2: getSelectedPositions("poste2"),
+            poste3: getSelectedPositions("poste3"),
+            poste4: getSelectedPositions("poste4"),
+
+            manualNote: Number(
+                document
+                    .getElementById("new-player-note")
+                    .value
+            )
+        };
+
+        setAddPlayerLoading(true);
+
+        google.script.run
+            .withSuccessHandler(function (result) {
+                setAddPlayerLoading(false);
+
+                closeAddPlayerModal();
+
+                document
+                    .getElementById("add-player-form")
+                    .reset();
+
+                resetPositionInputs();
+
+                addPlayerToSelectionList(
+                    result.player
+                );
+            })
+            .withFailureHandler(function (error) {
+                setAddPlayerLoading(false);
+                showAddPlayerError(error.message);
+            })
+            .addPlayer(playerInput);
+    }
+
+
+    function setAddPlayerLoading(isLoading) {
+        const submitButton =
+            document.getElementById(
+                "submit-add-player"
+            );
+
+        submitButton.disabled = isLoading;
+        submitButton.textContent =
+            isLoading
+                ? "Ajout..."
+                : "Ajouter";
+    }
+
+
+    function showAddPlayerError(message) {
+        const errorElement =
+            document.getElementById(
+                "add-player-error"
+            );
+
+        errorElement.textContent = message;
+        errorElement.classList.remove("hidden");
+    }
+
+
+    function clearAddPlayerError() {
+        const errorElement =
+            document.getElementById(
+                "add-player-error"
+            );
+
+        errorElement.textContent = "";
+        errorElement.classList.add("hidden");
+    }
+
+
+    function addPlayerToSelectionList(player) {
+        joueursData.push(player);
+
+        const playerList =
+            document.getElementById("liste");
+
+        const label =
+            document.createElement("label");
+
+        label.className = "player-card";
+
+        label.innerHTML = `
+      <input
+        type="checkbox"
+        value="${escapeHtml(player.id)}"
+        onchange="updateStats()"
+      >
+      <span class="player-name">
+        ${escapeHtml(player.nom)}
+      </span>
+    `;
+
+        playerList.appendChild(label);
+    }
+
+
+    function escapeHtml(value) {
+        const div = document.createElement("div");
+        div.textContent = String(value);
+        return div.innerHTML;
+    }
+</script>
