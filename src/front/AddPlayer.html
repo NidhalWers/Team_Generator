@@ -148,23 +148,45 @@
                 </fieldset>
             </div>
 
-            <label class="form-field">
-                <span>Note manuelle</span>
+            <fieldset class="manual-rating-field">
+              <legend>Note manuelle</legend>
 
-                <select id="new-player-note" required>
-                    <option value="">Sélectionner</option>
-                    <option value="0.5">0,5</option>
-                    <option value="1">1</option>
-                    <option value="1.5">1,5</option>
-                    <option value="2">2</option>
-                    <option value="2.5">2,5</option>
-                    <option value="3">3</option>
-                    <option value="3.5">3,5</option>
-                    <option value="4">4</option>
-                    <option value="4.5">4,5</option>
-                    <option value="5">5</option>
-                </select>
-            </label>
+              <div
+                id="manual-star-rating"
+                class="manual-star-rating"
+                role="slider"
+                aria-label="Note manuelle"
+                aria-valuemin="0.5"
+                aria-valuemax="5"
+                aria-valuenow="0"
+                tabindex="0"
+                onclick="handleManualRatingClick(event)"
+                onkeydown="handleManualRatingKeydown(event)"
+              >
+                <div class="manual-star-rating-base">★★★★★</div>
+                <div
+                  id="manual-star-rating-fill"
+                  class="manual-star-rating-fill"
+                  style="width: 0%;"
+                >
+                  ★★★★★
+                </div>
+              </div>
+
+              <input
+                type="hidden"
+                id="new-player-note"
+                name="manualNote"
+                required
+              >
+
+              <div
+                id="manual-note-value"
+                class="manual-note-value"
+              >
+                Sélectionner une note
+              </div>
+            </fieldset>
 
             <div id="add-player-error" class="form-error hidden"></div>
 
@@ -250,9 +272,7 @@
             poste4: getSelectedPositions("poste4"),
 
             manualNote: Number(
-                document
-                    .getElementById("new-player-note")
-                    .value
+              document.getElementById("new-player-note").value
             )
         };
 
@@ -269,10 +289,9 @@
                     .reset();
 
                 resetPositionInputs();
+                resetManualRating();
 
-                addPlayerToSelectionList(
-                    result.player
-                );
+                addPlayerToSelectionList(result.player);
             })
             .withFailureHandler(function (error) {
                 setAddPlayerLoading(false);
@@ -281,6 +300,49 @@
             .addPlayer(playerInput);
     }
 
+    function handleManualRatingClick(event) {
+      const ratingElement = event.currentTarget;
+      const rect = ratingElement.getBoundingClientRect();
+
+      const x = event.clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, x / rect.width));
+
+      let value = Math.round(ratio * 10) / 2; // pas de 0,5
+
+      if (value < 0.5) {
+        value = 0.5;
+      }
+
+      if (value > 5) {
+        value = 5;
+      }
+
+      setManualRating(value);
+    }
+
+    function setManualRating(value) {
+      const input = document.getElementById("new-player-note");
+      const fill = document.getElementById("manual-star-rating-fill");
+      const text = document.getElementById("manual-note-value");
+      const rating = document.getElementById("manual-star-rating");
+
+      input.value = value;
+
+      const percentage = (value / 5) * 100;
+      fill.style.width = percentage + "%";
+
+      const displayValue = value.toString().replace(".", ",");
+
+      text.textContent = "Note sélectionnée : " + displayValue + " / 5";
+      rating.setAttribute("aria-valuenow", value);
+    }
+
+    function resetManualRating() {
+      document.getElementById("new-player-note").value = "";
+      document.getElementById("manual-star-rating-fill").style.width = "0%";
+      document.getElementById("manual-note-value").textContent = "Sélectionner une note";
+      document.getElementById("manual-star-rating").setAttribute("aria-valuenow", "0");
+    }
 
     function setAddPlayerLoading(isLoading) {
         const submitButton =
@@ -342,7 +404,6 @@
 
         playerList.appendChild(label);
     }
-
 
     function escapeHtml(value) {
         const div = document.createElement("div");

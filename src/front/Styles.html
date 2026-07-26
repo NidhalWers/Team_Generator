@@ -608,8 +608,14 @@
       font-size: 10px;
     }
 
-    .note-adj {
-      font-size: 12px;
+    .manual-star-rating-base,
+    .manual-star-rating-fill {
+      font-size: 32px;
+      letter-spacing: 2px;
+    }
+
+    .manual-note-value {
+      font-size: 13px;
     }
   }
 
@@ -689,6 +695,73 @@
     opacity: 0.35;
     cursor: not-allowed;
     background: #e2e8f0;
+  }
+
+  /* =====================================================
+   MANUAL STAR RATING
+   ===================================================== */
+
+  .manual-rating-field {
+    margin: 0 0 15px;
+    padding: 12px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+
+    background: #f8fafc;
+  }
+
+  .manual-rating-field legend {
+    padding: 0 6px;
+
+    color: #334155;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .manual-star-rating {
+    position: relative;
+
+    width: max-content;
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .manual-star-rating-base,
+  .manual-star-rating-fill {
+    font-size: 36px;
+    letter-spacing: 4px;
+  }
+
+  .manual-star-rating-base {
+    color: #cbd5e1;
+  }
+
+  .manual-star-rating-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    overflow: hidden;
+    white-space: nowrap;
+    color: #f59e0b;
+    pointer-events: none;
+  }
+
+  .manual-star-rating:focus {
+    outline: 2px solid #bfdbfe;
+    outline-offset: 6px;
+    border-radius: 8px;
+  }
+
+  .manual-note-value {
+    margin-top: 10px;
+
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
   }
 
   @media (max-width: 600px) {
