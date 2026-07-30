@@ -1,41 +1,140 @@
 <script>
   let joueursData = [];
 
-  // Charger les joueurs
-  google.script.run.withSuccessHandler(function(joueurs) {
 
-    joueursData = joueurs;
+  google.script.run
+    .withSuccessHandler(function(joueurs) {
+      joueursData = joueurs;
+      renderPlayerList();
+    })
+    .getJoueurs();
 
-    let html = "";
 
-    joueurs.forEach(j => {
-      html += `
-        <label class="player-card">
-          <input type="checkbox" value="${j.id}" onchange="updateStats()">
-          <span class="player-name">${j.nom}</span>
-        </label>
-      `;
-    });
-
-    document.getElementById("liste").innerHTML = html;
-
-  }).getJoueurs();
-
-  function updateStats() {
-
-    const checked = document.querySelectorAll("input[type='checkbox']:checked");
-
-    let total = 0;
-
-    checked.forEach(cb => {
-      total += parseFloat(cb.dataset.note);
-    });
-
-    const count = checked.length;
-    const moyenne = count > 0 ? (total / count) : 0;
-
-    document.getElementById("count").innerText = count;
-    (2);
+  function renderPlayerList() {
+    document
+      .getElementById("liste")
+      .innerHTML = joueursData
+        .map(buildPlayerCardHtml)
+        .join("");
   }
 
+
+  function buildPlayerCardHtml(player) {
+    return `
+      <div
+        class="player-card"
+        data-player-id="${escapeHtml(player.id)}"
+      >
+        <label class="player-select-area">
+          <input
+            class="player-select-checkbox"
+            type="checkbox"
+            value="${escapeHtml(player.id)}"
+            onchange="updateStats()"
+          >
+
+          <span class="player-name">
+            ${escapeHtml(player.nom)}
+          </span>
+        </label>
+
+        <button
+          type="button"
+          class="player-edit-button"
+          aria-label="Modifier ${escapeHtml(player.nom)}"
+          title="Modifier le joueur"
+          onclick="
+            openEditPlayerModal(
+              event,
+              this.closest('.player-card').dataset.playerId
+            )
+          "
+        >
+          ✎
+        </button>
+      </div>
+    `;
+  }
+
+
+  function addPlayerToSelectionList(player) {
+    joueursData.push(player);
+
+    document
+      .getElementById("liste")
+      .insertAdjacentHTML(
+        "beforeend",
+        buildPlayerCardHtml(player)
+      );
+  }
+
+
+  function updatePlayerInSelectionList(
+    updatedPlayer
+  ) {
+    const playerIndex =
+      joueursData.findIndex(player => {
+        return String(player.id) ===
+          String(updatedPlayer.id);
+      });
+
+    if (playerIndex !== -1) {
+      joueursData[playerIndex] = {
+        ...joueursData[playerIndex],
+        ...updatedPlayer
+      };
+    }
+
+    const card =
+      Array.from(
+        document.querySelectorAll(
+          "#liste .player-card"
+        )
+      )
+      .find(element => {
+        return String(
+          element.dataset.playerId
+        ) === String(updatedPlayer.id);
+      });
+
+    if (!card) {
+      return;
+    }
+
+    const nameElement =
+      card.querySelector(".player-name");
+
+    const editButton =
+      card.querySelector(
+        ".player-edit-button"
+      );
+
+    nameElement.textContent =
+      updatedPlayer.nom;
+
+    editButton.setAttribute(
+      "aria-label",
+      `Modifier ${updatedPlayer.nom}`
+    );
+  }
+
+
+  function updateStats() {
+    const checked =
+      document.querySelectorAll(
+        "#liste " +
+        ".player-select-checkbox:checked"
+      );
+
+    document
+      .getElementById("count")
+      .innerText = checked.length;
+  }
+
+
+  function escapeHtml(value) {
+    const div = document.createElement("div");
+    div.textContent = String(value ?? "");
+    return div.innerHTML;
+  }
 </script>

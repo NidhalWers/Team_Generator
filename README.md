@@ -14,11 +14,12 @@ The whole project runs on **Google Apps Script**, making it usable from both des
 - 🎯 Position-aware assignment
 - ⭐ Multiple preferred positions per player
 - 📊 Automatic team balancing
-- 👥 Support for substitutes
+- 👥 Support for substitutes (when the remainder fits across the complete teams)
 - 🧩 Support for partial teams
 - 📱 Responsive Web App
 - 📈 Automatic player rating system
 - 🔧 Spreadsheet auto initialization
+- ➕ Player creation and editing from the Web App
 
 ---
 
@@ -53,9 +54,9 @@ The algorithm:
 
 1. reads selected players
 2. builds a player pool
-3. generates hundreds of random distributions
-4. optimizes every team's lineup
-5. computes the standard deviation of adjusted team ratings
+3. generates 300 shuffled distributions, prioritizing less versatile players
+4. assigns positions using the preferred-position levels and available lineup slots
+5. computes the standard deviation of the teams' adjusted average ratings
 6. keeps the best solution
 
 ---
@@ -72,7 +73,9 @@ Create a new empty spreadsheet.
 
 Extensions → Apps Script
 
-Copy every file from this repository.
+Create the corresponding Apps Script files and copy the contents of every file from
+`src/back/` and `src/front/` into the project. Keep the HTML filenames used by
+`include()` (`Index`, `Styles`, `Main`, `Player`, `Team` and `AddPlayer`).
 
 ---
 
@@ -109,14 +112,16 @@ Copy the generated URL.
 
 ## Add players
 
-Fill the **Joueurs** sheet.
+Fill the **Joueurs** sheet. Each player needs a unique ID, a name, a rating and
+up to four position-preference levels. The **Présent** checkbox is available for
+spreadsheet-side tracking; Web App selection is handled in the Web App itself.
 
 Example:
 
-| Player | Rating | Poste1 | Poste2 |
-|---------|---------|---------|---------|
-| John | 4.5 | DEF | MIL |
-| Mike | 3.5 | AIL | BUT |
+| Id | Présent | Joueur | Note | Poste1 | Poste2 |
+|----|---------|--------|------|--------|--------|
+| 1 | FALSE | John | 4.5 | DEF | MIL |
+| 2 | FALSE | Mike | 3.5 | AIL | BUT |
 
 ---
 
@@ -136,15 +141,17 @@ You can:
 
 Open the Web App.
 
-Select the players.
+Select at least 7 players.
 
 Press ``Generate``
 
-The application returns the optimized teams.
+The application displays the generated teams and writes them to an **Equipes**
+sheet (replacing the previous **Equipes** sheet).
 
-## ➕ Adding a Player
+## ➕ Add or edit a player
 
-Players can be added directly from the Web App without editing the spreadsheet manually.
+Players can be added directly from the Web App without editing the spreadsheet
+manually. Existing players can also be edited from the player list.
 
 The form asks for:
 
@@ -153,7 +160,7 @@ The form asks for:
 - Level 2 position(s)
 - Level 3 position(s)
 - Level 4 position(s)
-- Manual rating
+- Manual rating, from 0.5 to 5 in 0.5-point increments
 
 A given position can only belong to one level for the same player.
 
@@ -163,6 +170,8 @@ When the form is submitted:
 * a matching row is added to the Notes sheet;
 * formulas and boolean values are initialized automatically;
 * the new player is immediately added to the Web App selection list.
+
+Editing a player updates the corresponding rows in both **Joueurs** and **Notes**.
 
 
 ---
@@ -191,59 +200,64 @@ Example:
 
 ```
 Poste1 : DEF
-Poste2 : DEF,MIL
-Poste3 : MIL
-Poste4 : BUT
+Poste2 : MIL,AIL
+Poste3 : BUT
+Poste4 : G
 ```
 
-The algorithm applies decreasing coefficients depending on the position level.
+The algorithm applies the following coefficients to a player's rating:
+
+| Assignment | Coefficient |
+|------------|-------------|
+| Poste1 | 1.0 |
+| Poste2 | 0.9 |
+| Poste3 | 0.8 |
+| Poste4 | 0.7 |
+| Out of position | 0.6 |
 
 ---
 
 # Team balancing
 
-The optimizer evaluates hundreds of random distributions.
+Teams use a 7-player shape: `1 G, 2 DEF, 1 MIL, 2 AIL, 1 BUT`.
+The generator evaluates 300 shuffled distributions.
 
 For every generated team:
 
-- best lineup is computed
+- players are assigned to the first available position in their preference order
 - adjusted ratings are calculated
-- standard deviation between teams is measured
+- the standard deviation between adjusted team averages is measured
 
 The solution with the lowest deviation is kept.
 
-# Algorithm
-
-The generator performs approximately 300 simulations.
-
-For each simulation:
-
-- players are shuffled
-- teams are built
-- each lineup is optimized according to available positions
-- adjusted ratings are computed
-- the standard deviation between teams is measured
-
-The distribution with the smallest deviation is selected.
+If the remaining players can be spread across the complete teams, they become
+substitutes. Otherwise, a partial team is created and virtually completed with
+the median player rating for the balance calculation.
 
 ---
 
 # Project structure
 
 ```
-Apps Script
-│
-├── teamGenerator.gs
-├── player.gs
-├── teamDistribution.gs
-├── spreadsheetInitialization.gs
-├── utils.gs
-│
-├── index.html
-├── styles.html
-├── scripts.html
-│
-└── Tests/
+.
+├── Images/                     # README screenshots
+├── src/
+│   ├── back/                   # Apps Script services and generator
+│   │   ├── Main.gs
+│   │   ├── player.gs
+│   │   ├── playerCreationService.gs
+│   │   ├── spreadsheetInitialization.gs
+│   │   ├── teamDistributionService.gs
+│   │   ├── teamGenerator.gs
+│   │   └── utils.gs
+│   └── front/                  # Web App HTML, JavaScript and styles
+│       ├── AddPlayer.html
+│       ├── Index.html
+│       ├── Main.html
+│       ├── Player.html
+│       ├── Styles.html
+│       └── Team.html
+└── Tests/                      # Apps Script unit tests
 ```
 
 ---
@@ -268,8 +282,8 @@ Everything runs inside Google Sheets:
 - [x] Player positioning
 - [x] Unit tests
 - [x] Spreadsheet initialization
-- [ ] Player's addition from Web App
-- [ ] Position optimization
+- [x] Player addition and editing from the Web App
+- [ ] Position re-optimization within team
 
 ---
 

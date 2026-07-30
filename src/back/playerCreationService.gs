@@ -4,6 +4,8 @@ const NOTES_SHEET_NAME = "Notes";
 const PLAYER_HEADERS_ROW = 1;
 const NOTES_HEADERS_ROW = 2;
 
+const MANUAL_NOTE_HEADER = "Note manuelle (ancien format)";
+
 const PLAYER_POSITION_VALUES = [
   "G",
   "DEF",
@@ -341,4 +343,219 @@ function setNotesWeightedFormula(sheet, rowNumber, formulaColumn, firstBooleanCo
   sheet
     .getRange(rowNumber, formulaColumn)
     .setFormula(formula);
+}
+
+/**
+ * Returns all editable information for one player.
+ */
+function getPlayerById(playerId) {
+  const normalizedId = normalizePlayerIdForEdition(playerId);
+
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+
+  const playerSheet = spreadsheet.getSheetByName(PLAYER_SHEET_NAME);
+
+  const notesSheet = spreadsheet.getSheetByName(NOTES_SHEET_NAME);
+
+  if (!playerSheet || !notesSheet) {
+    throw new Error("Les feuilles Joueurs ou Notes sont introuvables.");
+  }
+
+  const playerHeaders = getSheetHeaderMap(playerSheet, PLAYER_HEADERS_ROW);
+
+  const notesHeaders = getSheetHeaderMap(notesSheet, NOTES_HEADERS_ROW);
+
+  const playerRow = findPlayerRowById(playerSheet, playerHeaders["Id"], PLAYER_HEADERS_ROW + 1, normalizedId);
+
+  const notesRow = findPlayerRowById(notesSheet, notesHeaders["Id"], NOTES_HEADERS_ROW + 1, normalizedId);
+
+  if (!playerRow || !notesRow) {
+    throw new Error(`Joueur introuvable : ${normalizedId}`);
+  }
+
+  return {
+    id: normalizedId,
+
+    name: String(playerSheet.getRange(playerRow, playerHeaders["Joueur"]).getValue() || ""),
+
+    poste1: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Poste1"]).getValue()),
+    poste2: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Poste2"]).getValue()),
+    poste3: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Poste3"]).getValue()),
+    poste4: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Poste4"]).getValue()),
+
+    manualNote: Number(notesSheet.getRange(notesRow, notesHeaders[MANUAL_NOTE_HEADER]).getValue())
+  };
+}
+
+/**
+ * Updates an existing player in Joueurs and Notes.
+ */
+function updatePlayer(playerInput) {
+  const lock = LockService.getDocumentLock();
+
+  lock.waitLock(30000);
+
+  let previousValues = null;
+
+  try {
+    if (!playerInput) {
+      throw new Error("Les informations du joueur sont manquantes.");
+    }
+
+    const playerId = normalizePlayerIdForEdition(playerInput.id);
+
+    const normalizedInput = validateAndNormalizePlayerInput(playerInput);
+
+    const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+
+    const playerSheet = spreadsheet.getSheetByName(PLAYER_SHEET_NAME);
+
+    const notesSheet = spreadsheet.getSheetByName(NOTES_SHEET_NAME);
+
+    if (!playerSheet || !notesSheet) {
+      throw new Error("Les feuilles Joueurs ou Notes sont introuvables.");
+    }
+
+    const playerHeaders = getSheetHeaderMap(playerSheet, PLAYER_HEADERS_ROW);
+
+    const notesHeaders = getSheetHeaderMap(notesSheet, NOTES_HEADERS_ROW);
+
+    const playerRow = findPlayerRowById(playerSheet, playerHeaders["Id"], PLAYER_HEADERS_ROW + 1, playerId);
+
+    const notesRow = findPlayerRowById(notesSheet, notesHeaders["Id"], NOTES_HEADERS_ROW + 1, playerId);
+
+    if (!playerRow || !notesRow) {
+      throw new Error(`Joueur introuvable : ${playerId}`);
+    }
+
+    /*
+     * Keep the current values in case the second
+     * sheet update fails.
+     */
+    previousValues = {
+      playerSheet,
+      notesSheet,
+      playerRow,
+      notesRow,
+      playerHeaders,
+      notesHeaders,
+
+      name: playerSheet.getRange(playerRow, playerHeaders["Joueur"]).getValue(),
+
+      postes: [
+        playerSheet.getRange(playerRow, playerHeaders["Poste1"]).getValue(),
+        playerSheet.getRange(playerRow, playerHeaders["Poste2"]).getValue(),
+        playerSheet.getRange(playerRow, playerHeaders["Poste3"]).getValue(),
+        playerSheet.getRange(playerRow, playerHeaders["Poste4"]).getValue(),
+      ],
+
+      manualNote: notesSheet.getRange(notesRow, notesHeaders[MANUAL_NOTE_HEADER]).getValue()
+    };
+
+    playerSheet.getRange(playerRow, playerHeaders["Joueur"]).setValue(normalizedInput.name);
+
+    ["Poste1", "Poste2", "Poste3", "Poste4"]
+      .forEach((header, index) => {
+        playerSheet.getRange(playerRow, playerHeaders[header]).setValue(normalizedInput.postes[index]);
+      });
+
+    notesSheet.getRange(notesRow, notesHeaders[MANUAL_NOTE_HEADER]).setValue(normalizedInput.manualNote);
+
+    SpreadsheetApp.flush();
+
+    return {
+      success: true,
+
+      player: {
+        id: playerId,
+        nom: normalizedInput.name
+      }
+    };
+  } catch (error) {
+    if (previousValues) {
+      restorePreviousPlayerValues(previousValues);
+    }
+
+    throw error;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
+/**
+ * Finds a spreadsheet row using a player ID.
+ */
+function findPlayerRowById(sheet, idColumn, firstDataRow, playerId) {
+  const lastRow = sheet.getLastRow();
+
+  if (lastRow < firstDataRow) {
+    return null;
+  }
+
+  const values = sheet.getRange(firstDataRow, idColumn, lastRow - firstDataRow + 1, 1).getValues();
+
+  const normalizedId = String(playerId).trim();
+
+  const rowIndex = values.findIndex(row => {
+      return String(row[0]).trim() === normalizedId;});
+
+  if (rowIndex === -1) {
+    return null;
+  }
+
+  return firstDataRow + rowIndex;
+}
+
+
+function splitPositionCell(value) {
+  return String(value || "")
+    .split(",")
+    .map(position =>
+      position.trim().toUpperCase()
+    )
+    .filter(Boolean);
+}
+
+
+function normalizePlayerIdForEdition(playerId) {
+  const normalizedId = String(playerId ?? "").trim();
+
+  if (!normalizedId) {
+    throw new Error(
+      "L'identifiant du joueur est obligatoire."
+    );
+  }
+
+  return normalizedId;
+}
+
+
+function restorePreviousPlayerValues(previous) {
+  try {
+    previous.playerSheet
+      .getRange(previous.playerRow, previous.playerHeaders["Joueur"])
+      .setValue(previous.name);
+
+    [
+      "Poste1",
+      "Poste2",
+      "Poste3",
+      "Poste4"
+    ].forEach((header, index) => {
+      previous.playerSheet
+        .getRange(previous.playerRow, previous.playerHeaders[header])
+        .setValue(previous.postes[index]);
+    });
+
+    previous.notesSheet
+      .getRange(previous.notesRow, previous.notesHeaders[MANUAL_NOTE_HEADER])
+      .setValue(previous.manualNote);
+      
+  } catch (rollbackError) {
+    console.error(
+      "Unable to restore player values:",
+      rollbackError
+    );
+  }
 }

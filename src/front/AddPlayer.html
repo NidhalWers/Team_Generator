@@ -204,210 +204,371 @@
 </div>
 
 <script>
-    function openAddPlayerModal() {
-        document
-            .getElementById("add-player-modal")
-            .classList.remove("hidden");
+  let editingPlayerId = null;
 
-        document
-            .getElementById("new-player-name")
-            .focus();
+  function openAddPlayerModal() {
+    editingPlayerId = null;
+
+    resetPlayerForm();
+    updatePlayerFormMode();
+    showPlayerModal();
+
+    const hasDesktopPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    if (hasDesktopPointer) {
+      document
+        .getElementById("new-player-name")
+        .focus();
     }
+  }
+
+  function openEditPlayerModal(event, playerId) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    showLoader();
+
+    google.script.run
+      .withSuccessHandler(function(player) {
+        hideLoader();
+
+        editingPlayerId =
+          String(player.id);
+
+        resetPlayerForm();
+        updatePlayerFormMode();
+        populatePlayerForm(player);
+        showPlayerModal();
+      })
+      .withFailureHandler(function(error) {
+        hideLoader();
+
+        window.alert(
+          error.message ||
+          "Impossible de charger le joueur."
+        );
+      })
+      .getPlayerById(playerId);
+  }
+
+  function showPlayerModal() {
+    document
+      .getElementById("add-player-modal")
+      .classList.remove("hidden");
+  }
+
+  function closeAddPlayerModal() {
+    document
+      .getElementById("add-player-modal")
+      .classList.add("hidden");
+
+    editingPlayerId = null;
+
+    resetPlayerForm();
+    updatePlayerFormMode();
+  }
+
+  function populatePlayerForm(player) {
+    document.getElementById("new-player-name").value = player.name;
+
+    setPositionLevelValues("poste1", player.poste1);
+
+    setPositionLevelValues("poste2", player.poste2);
+
+    setPositionLevelValues("poste3", player.poste3);
+
+    setPositionLevelValues("poste4", player.poste4);
+
+    setManualRating(Number(player.manualNote));
+
+    document
+    .querySelectorAll(
+      "#add-player-form " +
+      ".position-option input:checked"
+    )
+    .forEach(input => {
+      handlePositionChange(input);
+    });
+  }
 
 
-    function closeAddPlayerModal() {
-        document
-            .getElementById("add-player-modal")
-            .classList.add("hidden");
-
-        clearAddPlayerError();
-    }
-
-    function getSelectedPositions(levelName) {
-        return Array.from(
-            document.querySelectorAll(
-                `input[name="${levelName}"]:checked`
-            )
-        ).map(input => input.value);
-    }
-
-    function handlePositionChange(changedInput) {
-        const position = changedInput.value;
-
-        const samePositionInputs = document.querySelectorAll(
-            `.position-option input[value="${position}"]`
+  function setPositionLevelValues(levelName, positions) {
+    (positions || []).forEach(position => {
+      const input =
+        document.querySelector(
+          `#add-player-form ` +
+          `input[name="${levelName}"]` +
+          `[value="${position}"]`
         );
 
-        samePositionInputs.forEach(input => {
-            if (input === changedInput) {
-                return;
-            }
+      if (input) {
+        input.checked = true;
+      }
+    });
+  }
 
-            input.disabled = changedInput.checked;
+  function getSelectedPositions(levelName) {
+      return Array.from(
+          document.querySelectorAll(
+              `input[name="${levelName}"]:checked`
+          )
+      ).map(input => input.value);
+  }
+
+  function handlePositionChange(changedInput) {
+      const position = changedInput.value;
+
+      const samePositionInputs = document.querySelectorAll(
+          `.position-option input[value="${position}"]`
+      );
+
+      samePositionInputs.forEach(input => {
+          if (input === changedInput) {
+              return;
+          }
+
+          input.disabled = changedInput.checked;
+      });
+  }
+
+  function resetPositionInputs() {
+      document
+          .querySelectorAll(".position-option input")
+          .forEach(input => {
+              input.checked = false;
+              input.disabled = false;
+          });
+  }
+
+  function resetPlayerForm() {
+    document
+      .getElementById("add-player-form")
+      .reset();
+
+    resetPositionInputs();
+    resetManualRating();
+    clearAddPlayerError();
+  }
+
+  function resetManualRating() {
+    document
+      .getElementById("new-player-note")
+      .value = "";
+
+    document
+      .getElementById(
+        "manual-star-rating-fill"
+      )
+      .style.width = "0%";
+
+    document
+      .getElementById(
+        "manual-note-value"
+      )
+      .textContent =
+        "Sélectionner une note";
+
+    document
+      .getElementById(
+        "manual-star-rating"
+      )
+      .setAttribute(
+        "aria-valuenow",
+        "0"
+      );
+  }
+
+  function updatePlayerFormMode() {
+    const isEditing =
+      editingPlayerId !== null;
+
+    document
+      .getElementById("add-player-title")
+      .textContent =
+        isEditing
+          ? "Modifier le joueur"
+          : "Ajouter un joueur";
+
+    document
+      .getElementById("submit-add-player")
+      .textContent =
+        isEditing
+          ? "Enregistrer"
+          : "Ajouter";
+  }
+
+  function submitAddPlayer(event) {
+    event.preventDefault();
+
+    clearAddPlayerError();
+
+    const manualNoteValue =
+      document
+        .getElementById("new-player-note")
+        .value;
+
+    if (!manualNoteValue) {
+      showAddPlayerError(
+        "La note manuelle est obligatoire."
+      );
+
+      return;
+    }
+
+    const isEditing =
+      editingPlayerId !== null;
+
+    /*
+    * Keep the ID independently because closing the
+    * modal resets editingPlayerId.
+    */
+    const submittedPlayerId =
+      editingPlayerId;
+
+    const playerInput = {
+      name: document
+        .getElementById("new-player-name")
+        .value,
+
+      poste1: getSelectedPositions("poste1"),
+
+      poste2: getSelectedPositions("poste2"),
+
+      poste3: getSelectedPositions("poste3"),
+
+      poste4: getSelectedPositions("poste4"),
+
+      manualNote: Number(manualNoteValue)
+    };
+
+    if (isEditing) {
+      playerInput.id =
+        submittedPlayerId;
+    }
+
+    setAddPlayerLoading(true);
+
+    const runner =
+      google.script.run
+        .withSuccessHandler(function(result) {
+          setAddPlayerLoading(false);
+
+          if (isEditing) {
+            updatePlayerInSelectionList(
+              result.player
+            );
+
+            invalidateGeneratedTeams();
+          } else {
+            addPlayerToSelectionList(
+              result.player
+            );
+          }
+
+          closeAddPlayerModal();
+        })
+        .withFailureHandler(function(error) {
+          setAddPlayerLoading(false);
+
+          showAddPlayerError(
+            error.message ||
+            "Une erreur est survenue."
+          );
         });
+
+    if (isEditing) {
+      runner.updatePlayer(playerInput);
+    } else {
+      runner.addPlayer(playerInput);
+    }
+  }
+
+  function handleManualRatingClick(event) {
+    const ratingElement = event.currentTarget;
+    const rect = ratingElement.getBoundingClientRect();
+
+    const x = event.clientX - rect.left;
+    const ratio = Math.max(0, Math.min(1, x / rect.width));
+
+    let value = Math.round(ratio * 10) / 2; // pas de 0,5
+
+    if (value < 0.5) {
+      value = 0.5;
     }
 
-    function resetPositionInputs() {
-        document
-            .querySelectorAll(".position-option input")
-            .forEach(input => {
-                input.checked = false;
-                input.disabled = false;
-            });
+    if (value > 5) {
+      value = 5;
     }
 
-    function submitAddPlayer(event) {
-        event.preventDefault();
+    setManualRating(value);
+  }
 
-        clearAddPlayerError();
+  function setManualRating(value) {
+    const input = document.getElementById("new-player-note");
+    const fill = document.getElementById("manual-star-rating-fill");
+    const text = document.getElementById("manual-note-value");
+    const rating = document.getElementById("manual-star-rating");
 
-        const playerInput = {
-            name: document
-                .getElementById("new-player-name")
-                .value,
+    input.value = value;
 
-            poste1: getSelectedPositions("poste1"),
-            poste2: getSelectedPositions("poste2"),
-            poste3: getSelectedPositions("poste3"),
-            poste4: getSelectedPositions("poste4"),
+    const percentage = (value / 5) * 100;
+    fill.style.width = percentage + "%";
 
-            manualNote: Number(
-              document.getElementById("new-player-note").value
-            )
-        };
+    const displayValue = value.toString().replace(".", ",");
 
-        setAddPlayerLoading(true);
+    text.textContent = "Note sélectionnée : " + displayValue + " / 5";
+    rating.setAttribute("aria-valuenow", value);
+  }
 
-        google.script.run
-            .withSuccessHandler(function (result) {
-                setAddPlayerLoading(false);
+  function resetManualRating() {
+    document.getElementById("new-player-note").value = "";
+    document.getElementById("manual-star-rating-fill").style.width = "0%";
+    document.getElementById("manual-note-value").textContent = "Sélectionner une note";
+    document.getElementById("manual-star-rating").setAttribute("aria-valuenow", "0");
+  }
 
-                closeAddPlayerModal();
+  function setAddPlayerLoading(isLoading) {
+    const submitButton =
+      document.getElementById(
+        "submit-add-player"
+      );
 
-                document
-                    .getElementById("add-player-form")
-                    .reset();
+    submitButton.disabled =
+      isLoading;
 
-                resetPositionInputs();
-                resetManualRating();
+    if (isLoading) {
+      submitButton.textContent =
+        editingPlayerId !== null
+          ? "Enregistrement..."
+          : "Ajout...";
 
-                addPlayerToSelectionList(result.player);
-            })
-            .withFailureHandler(function (error) {
-                setAddPlayerLoading(false);
-                showAddPlayerError(error.message);
-            })
-            .addPlayer(playerInput);
+      return;
     }
 
-    function handleManualRatingClick(event) {
-      const ratingElement = event.currentTarget;
-      const rect = ratingElement.getBoundingClientRect();
+    submitButton.textContent =
+      editingPlayerId !== null
+        ? "Enregistrer"
+        : "Ajouter";
+  }
 
-      const x = event.clientX - rect.left;
-      const ratio = Math.max(0, Math.min(1, x / rect.width));
+  function showAddPlayerError(message) {
+      const errorElement =
+          document.getElementById(
+              "add-player-error"
+          );
 
-      let value = Math.round(ratio * 10) / 2; // pas de 0,5
-
-      if (value < 0.5) {
-        value = 0.5;
-      }
-
-      if (value > 5) {
-        value = 5;
-      }
-
-      setManualRating(value);
-    }
-
-    function setManualRating(value) {
-      const input = document.getElementById("new-player-note");
-      const fill = document.getElementById("manual-star-rating-fill");
-      const text = document.getElementById("manual-note-value");
-      const rating = document.getElementById("manual-star-rating");
-
-      input.value = value;
-
-      const percentage = (value / 5) * 100;
-      fill.style.width = percentage + "%";
-
-      const displayValue = value.toString().replace(".", ",");
-
-      text.textContent = "Note sélectionnée : " + displayValue + " / 5";
-      rating.setAttribute("aria-valuenow", value);
-    }
-
-    function resetManualRating() {
-      document.getElementById("new-player-note").value = "";
-      document.getElementById("manual-star-rating-fill").style.width = "0%";
-      document.getElementById("manual-note-value").textContent = "Sélectionner une note";
-      document.getElementById("manual-star-rating").setAttribute("aria-valuenow", "0");
-    }
-
-    function setAddPlayerLoading(isLoading) {
-        const submitButton =
-            document.getElementById(
-                "submit-add-player"
-            );
-
-        submitButton.disabled = isLoading;
-        submitButton.textContent =
-            isLoading
-                ? "Ajout..."
-                : "Ajouter";
-    }
+      errorElement.textContent = message;
+      errorElement.classList.remove("hidden");
+  }
 
 
-    function showAddPlayerError(message) {
-        const errorElement =
-            document.getElementById(
-                "add-player-error"
-            );
+  function clearAddPlayerError() {
+      const errorElement =
+          document.getElementById(
+              "add-player-error"
+          );
 
-        errorElement.textContent = message;
-        errorElement.classList.remove("hidden");
-    }
-
-
-    function clearAddPlayerError() {
-        const errorElement =
-            document.getElementById(
-                "add-player-error"
-            );
-
-        errorElement.textContent = "";
-        errorElement.classList.add("hidden");
-    }
-
-
-    function addPlayerToSelectionList(player) {
-        joueursData.push(player);
-
-        const playerList =
-            document.getElementById("liste");
-
-        const label =
-            document.createElement("label");
-
-        label.className = "player-card";
-
-        label.innerHTML = `
-      <input
-        type="checkbox"
-        value="${escapeHtml(player.id)}"
-        onchange="updateStats()"
-      >
-      <span class="player-name">
-        ${escapeHtml(player.nom)}
-      </span>
-    `;
-
-        playerList.appendChild(label);
-    }
-
-    function escapeHtml(value) {
-        const div = document.createElement("div");
-        div.textContent = String(value);
-        return div.innerHTML;
-    }
+      errorElement.textContent = "";
+      errorElement.classList.add("hidden");
+  }
 </script>
