@@ -3,17 +3,17 @@
     <div class="modal-card">
         <div class="modal-header">
             <h2 id="add-player-title">
-                Ajouter un joueur
+                Add a player
             </h2>
 
-            <button type="button" class="btn-icon" onclick="closeAddPlayerModal()" aria-label="Fermer">
+            <button type="button" class="btn-icon" onclick="closeAddPlayerModal()" aria-label="Close">
                 ✕
             </button>
         </div>
 
         <form id="add-player-form" onsubmit="submitAddPlayer(event)">
             <label class="form-field">
-                <span>Nom du joueur</span>
+                <span>Player name</span>
 
                 <input id="new-player-name" name="name" type="text" maxlength="80" required autocomplete="off">
             </label>
@@ -21,31 +21,31 @@
             <div class="position-levels">
 
                 <fieldset class="position-level">
-                    <legend>Poste 1 — Niveau inchangé</legend>
+                    <legend>Position 1 — No penalty</legend>
 
                     <div class="position-options">
                         <label class="position-option">
-                            <input type="checkbox" name="poste1" value="G" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position1" value="G" onchange="handlePositionChange(this)">
                             <span>G</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste1" value="DEF" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position1" value="DEF" onchange="handlePositionChange(this)">
                             <span>DEF</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste1" value="MIL" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position1" value="MIL" onchange="handlePositionChange(this)">
                             <span>MIL</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste1" value="AIL" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position1" value="AIL" onchange="handlePositionChange(this)">
                             <span>AIL</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste1" value="BUT" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position1" value="BUT" onchange="handlePositionChange(this)">
                             <span>BUT</span>
                         </label>
                     </div>
@@ -53,31 +53,31 @@
 
 
                 <fieldset class="position-level">
-                    <legend>Poste 2 — Petit malus</legend>
+                    <legend>Position 2 — Small penalty</legend>
 
                     <div class="position-options">
                         <label class="position-option">
-                            <input type="checkbox" name="poste2" value="G" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position2" value="G" onchange="handlePositionChange(this)">
                             <span>G</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste2" value="DEF" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position2" value="DEF" onchange="handlePositionChange(this)">
                             <span>DEF</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste2" value="MIL" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position2" value="MIL" onchange="handlePositionChange(this)">
                             <span>MIL</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste2" value="AIL" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position2" value="AIL" onchange="handlePositionChange(this)">
                             <span>AIL</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste2" value="BUT" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position2" value="BUT" onchange="handlePositionChange(this)">
                             <span>BUT</span>
                         </label>
                     </div>
@@ -85,31 +85,31 @@
 
 
                 <fieldset class="position-level">
-                    <legend>Poste 3 — Malus moyen</legend>
+                    <legend>Position 3 — Medium penalty</legend>
 
                     <div class="position-options">
                         <label class="position-option">
-                            <input type="checkbox" name="poste3" value="G" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position3" value="G" onchange="handlePositionChange(this)">
                             <span>G</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste3" value="DEF" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position3" value="DEF" onchange="handlePositionChange(this)">
                             <span>DEF</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste3" value="MIL" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position3" value="MIL" onchange="handlePositionChange(this)">
                             <span>MIL</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste3" value="AIL" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position3" value="AIL" onchange="handlePositionChange(this)">
                             <span>AIL</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste3" value="BUT" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position3" value="BUT" onchange="handlePositionChange(this)">
                             <span>BUT</span>
                         </label>
                     </div>
@@ -117,31 +117,31 @@
 
 
                 <fieldset class="position-level">
-                    <legend>Poste 4 — Malus important</legend>
+                    <legend>Position 4 — Large penalty</legend>
 
                     <div class="position-options">
                         <label class="position-option">
-                            <input type="checkbox" name="poste4" value="G" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position4" value="G" onchange="handlePositionChange(this)">
                             <span>G</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste4" value="DEF" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position4" value="DEF" onchange="handlePositionChange(this)">
                             <span>DEF</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste4" value="MIL" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position4" value="MIL" onchange="handlePositionChange(this)">
                             <span>MIL</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste4" value="AIL" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position4" value="AIL" onchange="handlePositionChange(this)">
                             <span>AIL</span>
                         </label>
 
                         <label class="position-option">
-                            <input type="checkbox" name="poste4" value="BUT" onchange="handlePositionChange(this)">
+                            <input type="checkbox" name="position4" value="BUT" onchange="handlePositionChange(this)">
                             <span>BUT</span>
                         </label>
                     </div>
@@ -149,13 +149,13 @@
             </div>
 
             <fieldset class="manual-rating-field">
-              <legend>Note manuelle</legend>
+              <legend>Manual rating</legend>
 
               <div
                 id="manual-star-rating"
                 class="manual-star-rating"
                 role="slider"
-                aria-label="Note manuelle"
+                aria-label="Manual rating"
                 aria-valuemin="0.5"
                 aria-valuemax="5"
                 aria-valuenow="0"
@@ -175,16 +175,16 @@
 
               <input
                 type="hidden"
-                id="new-player-note"
-                name="manualNote"
+                id="new-player-rating"
+                name="manualRating"
                 required
               >
 
               <div
-                id="manual-note-value"
-                class="manual-note-value"
+                id="manual-rating-value"
+                class="manual-rating-value"
               >
-                Sélectionner une note
+                Select a rating
               </div>
             </fieldset>
 
@@ -192,11 +192,11 @@
 
             <div class="modal-actions">
                 <button type="button" class="btn-secondary" onclick="closeAddPlayerModal()">
-                    Annuler
+                    Cancel
                 </button>
 
                 <button id="submit-add-player" type="submit">
-                    Ajouter
+                    Add
                 </button>
             </div>
         </form>
@@ -245,7 +245,7 @@
 
         window.alert(
           error.message ||
-          "Impossible de charger le joueur."
+          "Unable to load the player."
         );
       })
       .getPlayerById(playerId);
@@ -271,15 +271,15 @@
   function populatePlayerForm(player) {
     document.getElementById("new-player-name").value = player.name;
 
-    setPositionLevelValues("poste1", player.poste1);
+    setPositionLevelValues("position1", player.position1);
 
-    setPositionLevelValues("poste2", player.poste2);
+    setPositionLevelValues("position2", player.position2);
 
-    setPositionLevelValues("poste3", player.poste3);
+    setPositionLevelValues("position3", player.position3);
 
-    setPositionLevelValues("poste4", player.poste4);
+    setPositionLevelValues("position4", player.position4);
 
-    setManualRating(Number(player.manualNote));
+    setManualRating(Number(player.manualRating));
 
     document
     .querySelectorAll(
@@ -352,7 +352,7 @@
 
   function resetManualRating() {
     document
-      .getElementById("new-player-note")
+      .getElementById("new-player-rating")
       .value = "";
 
     document
@@ -363,10 +363,10 @@
 
     document
       .getElementById(
-        "manual-note-value"
+        "manual-rating-value"
       )
       .textContent =
-        "Sélectionner une note";
+        "Select a rating";
 
     document
       .getElementById(
@@ -386,15 +386,15 @@
       .getElementById("add-player-title")
       .textContent =
         isEditing
-          ? "Modifier le joueur"
-          : "Ajouter un joueur";
+          ? "Edit player"
+          : "Add a player";
 
     document
       .getElementById("submit-add-player")
       .textContent =
         isEditing
-          ? "Enregistrer"
-          : "Ajouter";
+          ? "Save"
+          : "Add";
   }
 
   function submitAddPlayer(event) {
@@ -402,14 +402,14 @@
 
     clearAddPlayerError();
 
-    const manualNoteValue =
+    const manualRatingValue =
       document
-        .getElementById("new-player-note")
+        .getElementById("new-player-rating")
         .value;
 
-    if (!manualNoteValue) {
+    if (!manualRatingValue) {
       showAddPlayerError(
-        "La note manuelle est obligatoire."
+        "The manual rating is required."
       );
 
       return;
@@ -430,15 +430,15 @@
         .getElementById("new-player-name")
         .value,
 
-      poste1: getSelectedPositions("poste1"),
+      position1: getSelectedPositions("position1"),
 
-      poste2: getSelectedPositions("poste2"),
+      position2: getSelectedPositions("position2"),
 
-      poste3: getSelectedPositions("poste3"),
+      position3: getSelectedPositions("position3"),
 
-      poste4: getSelectedPositions("poste4"),
+      position4: getSelectedPositions("position4"),
 
-      manualNote: Number(manualNoteValue)
+      manualRating: Number(manualRatingValue)
     };
 
     if (isEditing) {
@@ -472,7 +472,7 @@
 
           showAddPlayerError(
             error.message ||
-            "Une erreur est survenue."
+            "An error occurred."
           );
         });
 
@@ -490,7 +490,7 @@
     const x = event.clientX - rect.left;
     const ratio = Math.max(0, Math.min(1, x / rect.width));
 
-    let value = Math.round(ratio * 10) / 2; // pas de 0,5
+    let value = Math.round(ratio * 10) / 2; // 0.5 increments
 
     if (value < 0.5) {
       value = 0.5;
@@ -504,9 +504,9 @@
   }
 
   function setManualRating(value) {
-    const input = document.getElementById("new-player-note");
+    const input = document.getElementById("new-player-rating");
     const fill = document.getElementById("manual-star-rating-fill");
-    const text = document.getElementById("manual-note-value");
+    const text = document.getElementById("manual-rating-value");
     const rating = document.getElementById("manual-star-rating");
 
     input.value = value;
@@ -514,16 +514,16 @@
     const percentage = (value / 5) * 100;
     fill.style.width = percentage + "%";
 
-    const displayValue = value.toString().replace(".", ",");
+    const displayValue = value.toString();
 
-    text.textContent = "Note sélectionnée : " + displayValue + " / 5";
+    text.textContent = "Selected rating: " + displayValue + " / 5";
     rating.setAttribute("aria-valuenow", value);
   }
 
   function resetManualRating() {
-    document.getElementById("new-player-note").value = "";
+    document.getElementById("new-player-rating").value = "";
     document.getElementById("manual-star-rating-fill").style.width = "0%";
-    document.getElementById("manual-note-value").textContent = "Sélectionner une note";
+    document.getElementById("manual-rating-value").textContent = "Select a rating";
     document.getElementById("manual-star-rating").setAttribute("aria-valuenow", "0");
   }
 
@@ -539,16 +539,16 @@
     if (isLoading) {
       submitButton.textContent =
         editingPlayerId !== null
-          ? "Enregistrement..."
-          : "Ajout...";
+          ? "Saving..."
+          : "Adding...";
 
       return;
     }
 
     submitButton.textContent =
       editingPlayerId !== null
-        ? "Enregistrer"
-        : "Ajouter";
+        ? "Save"
+        : "Add";
   }
 
   function showAddPlayerError(message) {

@@ -45,10 +45,10 @@ Example:
 
 | Position level | Value |
 |---------------|-------|
-| Poste1 | DEF |
-| Poste2 | MIL,AIL |
-| Poste3 | BUT |
-| Poste4 | |
+| Position1 | DEF |
+| Position2 | MIL,AIL |
+| Position3 | BUT |
+| Position4 | |
 
 The algorithm:
 
@@ -89,7 +89,7 @@ From the custom menu:
 
 This automatically creates:
 
-- Joueurs
+- Players
 - Notes
 
 with all required columns, formulas and checkboxes.
@@ -112,13 +112,13 @@ Copy the generated URL.
 
 ## Add players
 
-Fill the **Joueurs** sheet. Each player needs a unique ID, a name, a rating and
-up to four position-preference levels. The **Présent** checkbox is available for
+Fill the **Players** sheet. Each player needs a unique ID, a name, a rating and
+up to four position-preference levels. The **Present** checkbox is available for
 spreadsheet-side tracking; Web App selection is handled in the Web App itself.
 
 Example:
 
-| Id | Présent | Joueur | Note | Poste1 | Poste2 |
+| Id | Present | Player | Rating | Position1 | Position2 |
 |----|---------|--------|------|--------|--------|
 | 1 | FALSE | John | 4.5 | DEF | MIL |
 | 2 | FALSE | Mike | 3.5 | AIL | BUT |
@@ -145,8 +145,8 @@ Select at least 7 players.
 
 Press ``Generate``
 
-The application displays the generated teams and writes them to an **Equipes**
-sheet (replacing the previous **Equipes** sheet).
+The application displays the generated teams and writes them to a **Teams**
+sheet (replacing the previous **Teams** sheet).
 
 ## ➕ Add or edit a player
 
@@ -166,12 +166,12 @@ A given position can only belong to one level for the same player.
 
 When the form is submitted:
 * a new numeric and unique player ID is generated;
-* a new row is added to the Joueurs sheet;
+* a new row is added to the Players sheet;
 * a matching row is added to the Notes sheet;
 * formulas and boolean values are initialized automatically;
 * the new player is immediately added to the Web App selection list.
 
-Editing a player updates the corresponding rows in both **Joueurs** and **Notes**.
+Editing a player updates the corresponding rows in both **Players** and **Notes**.
 
 
 ---
@@ -199,20 +199,20 @@ Each player can have up to four preference levels.
 Example:
 
 ```
-Poste1 : DEF
-Poste2 : MIL,AIL
-Poste3 : BUT
-Poste4 : G
+Position1 : DEF
+Position2 : MIL,AIL
+Position3 : BUT
+Position4 : G
 ```
 
 The algorithm applies the following coefficients to a player's rating:
 
 | Assignment | Coefficient |
 |------------|-------------|
-| Poste1 | 1.0 |
-| Poste2 | 0.9 |
-| Poste3 | 0.8 |
-| Poste4 | 0.7 |
+| Position1 | 1.0 |
+| Position2 | 0.9 |
+| Position3 | 0.8 |
+| Position4 | 0.7 |
 | Out of position | 0.6 |
 
 ---

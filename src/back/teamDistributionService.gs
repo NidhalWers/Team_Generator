@@ -1,31 +1,31 @@
-function getTeamIndexRandomDistribution(index, nbEquipesCompletes, randomFunction = Math.random){
-  return Math.floor(randomFunction() * nbEquipesCompletes);
+function getTeamIndexRandomDistribution(index, fullTeamCount, randomFunction = Math.random){
+  return Math.floor(randomFunction() * fullTeamCount);
 }
 
-function getTeamIndexModuloDistribution(index, nbEquipesCompletes){
-  return index % nbEquipesCompletes
+function getTeamIndexModuloDistribution(index, fullTeamCount){
+  return index % fullTeamCount
 }
 
-function getTeamIndexSnakeDistribution(index, nbEquipesCompletes){
-	const cycle = Math.floor(index / nbEquipesCompletes);
+function getTeamIndexSnakeDistribution(index, fullTeamCount){
+	const cycle = Math.floor(index / fullTeamCount);
 	let teamIndex;
 
 	if (cycle % 2 === 0) {
-	  teamIndex = index % nbEquipesCompletes;
+	  teamIndex = index % fullTeamCount;
 	} else {
-	  teamIndex = nbEquipesCompletes - 1 - (index % nbEquipesCompletes);
+	  teamIndex = fullTeamCount - 1 - (index % fullTeamCount);
 	}
 	
 	return teamIndex;
 }
 
-function getTeamIndexLessPlayerDistribution(teamCount, nbEquipesCompletes, randomFunction = Math.random) {
+function getTeamIndexLessPlayerDistribution(teamCount, fullTeamCount, randomFunction = Math.random) {
 
-  const min = Math.min(...teamCount.slice(0, nbEquipesCompletes));
+  const min = Math.min(...teamCount.slice(0, fullTeamCount));
 
   const candidats = [];
 
-  for (let i = 0; i < nbEquipesCompletes; i++) {
+  for (let i = 0; i < fullTeamCount; i++) {
     if (teamCount[i] === min) {
       candidats.push(i);
     }
@@ -34,13 +34,13 @@ function getTeamIndexLessPlayerDistribution(teamCount, nbEquipesCompletes, rando
   return candidats[Math.floor(randomFunction() * candidats.length)];
 }
 
-function getTeamIndexWeakestDistribution(teamScore, nbEquipesCompletes, randomFunction = Math.random){
+function getTeamIndexWeakestDistribution(teamScore, fullTeamCount, randomFunction = Math.random){
 
-  const minScore = Math.min(...teamScore.slice(0, nbEquipesCompletes));
+  const minScore = Math.min(...teamScore.slice(0, fullTeamCount));
 
   const candidats = [];
 
-  for (let i = 0; i < nbEquipesCompletes; i++){
+  for (let i = 0; i < fullTeamCount; i++){
     if (teamScore[i] === minScore){
       candidats.push(i);
     }

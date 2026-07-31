@@ -1,77 +1,77 @@
 /**
- * Point d'entrée des tests de teamGenerator.gs.
+ * Entry point for the tests for teamGenerator.gs.
  */
 function runTeamGeneratorTests() {
   return runTestSuite("teamGenerator.gs", [
-    // getPosteIndex
+    // getPositionIndex
     {
-      name: "getPosteIndex retourne l'index du gardien",
-      test: testGetPosteIndexGardien
+      name: "getPositionIndex returns the goalkeeper index",
+      test: testGetPositionIndexGoalkeeper
     },
     {
-      name: "getPosteIndex retourne l'index du défenseur",
-      test: testGetPosteIndexDefenseur
+      name: "getPositionIndex returns the defender index",
+      test: testGetPositionIndexDefender
     },
     {
-      name: "getPosteIndex retourne l'index du milieu",
-      test: testGetPosteIndexMilieu
+      name: "getPositionIndex returns the midfielder index",
+      test: testGetPositionIndexMidfielder
     },
     {
-      name: "getPosteIndex retourne l'index de l'ailier",
-      test: testGetPosteIndexAilier
+      name: "getPositionIndex returns the winger index",
+      test: testGetPositionIndexWinger
     },
     {
-      name: "getPosteIndex retourne l'index du buteur",
-      test: testGetPosteIndexButeur
+      name: "getPositionIndex returns the striker index",
+      test: testGetPositionIndexStriker
     },
     {
-      name: "getPosteIndex retourne -1 pour un poste inconnu",
-      test: testGetPosteIndexUnknownPoste
+      name: "getPositionIndex returns -1 for an unknown position",
+      test: testGetPositionIndexUnknownPosition
     },
 
     // assignPlayerToTeam
     {
-      name: "assignPlayerToTeam place un joueur à son poste principal",
-      test: testAssignPlayerToPrimaryPoste
+      name: "assignPlayerToTeam assigns a player to their primary position",
+      test: testAssignPlayerToPrimaryPosition
     },
     {
-      name: "assignPlayerToTeam applique le coefficient du deuxième niveau",
-      test: testAssignPlayerToSecondaryPoste
+      name: "assignPlayerToTeam applies the second-level coefficient",
+      test: testAssignPlayerToSecondaryPosition
     },
     {
-      name: "assignPlayerToTeam essaie plusieurs postes d'une même cellule",
-      test: testAssignPlayerWithMultiplePostesInSameLevel
+      name: "assignPlayerToTeam tries multiple positions from the same cell",
+      test: testAssignPlayerWithMultiplePositionsInSameLevel
     },
     {
-      name: "assignPlayerToTeam passe au niveau suivant si les postes sont occupés",
-      test: testAssignPlayerFallsBackToNextPosteLevel
+      name: "assignPlayerToTeam falls back to the next level when positions are occupied",
+      test: testAssignPlayerFallsBackToNextPositionLevel
     },
     {
-      name: "assignPlayerToTeam place le joueur hors poste sans poste disponible",
+      name: "assignPlayerToTeam places the player out of position when no position is available",
       test: testAssignPlayerOutOfPosition
     },
     {
-      name: "assignPlayerToTeam décrémente le nombre de postes disponibles",
-      test: testAssignPlayerConsumesPosteSlot
+      name: "assignPlayerToTeam decrements the number of available positions",
+      test: testAssignPlayerConsumesPositionSlot
     },
     {
-      name: "assignPlayerToTeam met à jour les scores et l'effectif",
+      name: "assignPlayerToTeam updates scores and player count",
       test: testAssignPlayerUpdatesTeamData
     },
     {
-      name: "assignPlayerToTeam ajoute les données du joueur dans l'équipe",
+      name: "assignPlayerToTeam adds player data to the team",
       test: testAssignPlayerAddsPlayerResult
     },
     {
-      name: "assignPlayerToTeam utilise le joueur comme septième si nécessaire",
+      name: "assignPlayerToTeam uses the player as the seventh player when needed",
       test: testAssignPlayerAsSeventhPlayer
     },
     {
-      name: "assignPlayerToTeam ne transforme pas le septième joueur si le gardien est déjà pris",
+      name: "assignPlayerToTeam does not transform the seventh player when goalkeeper is occupied",
       test: testAssignSeventhPlayerWhenGoalkeeperAlreadyAssigned
     },
     {
-      name: "assignPlayerToTeam traite le huitième joueur comme remplaçant numéroté",
+      name: "assignPlayerToTeam treats the eighth player as a numbered substitute",
       test: testAssignEighthPlayer
     }
   ]);
@@ -79,38 +79,38 @@ function runTeamGeneratorTests() {
 
 
 // ======================================================
-// getPosteIndex
+// getPositionIndex
 // ======================================================
 
-function testGetPosteIndexGardien() {
-  assertEquals(0, getPosteIndex("G"));
+function testGetPositionIndexGoalkeeper() {
+  assertEquals(0, getPositionIndex("G"));
 }
 
 
-function testGetPosteIndexDefenseur() {
-  assertEquals(1, getPosteIndex("DEF"));
+function testGetPositionIndexDefender() {
+  assertEquals(1, getPositionIndex("DEF"));
 }
 
 
-function testGetPosteIndexMilieu() {
-  assertEquals(2, getPosteIndex("MIL"));
+function testGetPositionIndexMidfielder() {
+  assertEquals(2, getPositionIndex("MIL"));
 }
 
 
-function testGetPosteIndexAilier() {
-  assertEquals(3, getPosteIndex("AIL"));
+function testGetPositionIndexWinger() {
+  assertEquals(3, getPositionIndex("AIL"));
 }
 
 
-function testGetPosteIndexButeur() {
-  assertEquals(4, getPosteIndex("BUT"));
+function testGetPositionIndexStriker() {
+  assertEquals(4, getPositionIndex("BUT"));
 }
 
 
-function testGetPosteIndexUnknownPoste() {
-  assertEquals(-1, getPosteIndex("UNKNOWN"));
-  assertEquals(-1, getPosteIndex(""));
-  assertEquals(-1, getPosteIndex(null));
+function testGetPositionIndexUnknownPosition() {
+  assertEquals(-1, getPositionIndex("UNKNOWN"));
+  assertEquals(-1, getPositionIndex(""));
+  assertEquals(-1, getPositionIndex(null));
 }
 
 
@@ -118,55 +118,55 @@ function testGetPosteIndexUnknownPoste() {
 // assignPlayerToTeam
 // ======================================================
 
-function testAssignPlayerToPrimaryPoste() {
+function testAssignPlayerToPrimaryPosition() {
   const context = createAssignmentTestContext();
 
   const player = createTeamGeneratorTestPlayer({
-    name: "Défenseur principal",
-    note: 4,
-    postes: ["DEF", "", "", ""]
+    name: "Primary defender",
+    rating: 4,
+    positions: ["DEF", "", "", ""]
   });
 
   assignTestPlayer(player, context);
 
-  const assignedPlayer = context.equipes[0][0];
+  const assignedPlayer = context.teams[0][0];
 
-  assertEquals("DEF", assignedPlayer.poste);
-  assertAlmostEquals(4, assignedPlayer.noteAdj);
+  assertEquals("DEF", assignedPlayer.position);
+  assertAlmostEquals(4, assignedPlayer.adjustedRating);
 }
 
 
-function testAssignPlayerToSecondaryPoste() {
+function testAssignPlayerToSecondaryPosition() {
   const context = createAssignmentTestContext();
 
   const player = createTeamGeneratorTestPlayer({
-    name: "Milieu secondaire",
-    note: 4,
-    postes: ["", "MIL", "", ""]
+    name: "Midfielder secondaire",
+    rating: 4,
+    positions: ["", "MIL", "", ""]
   });
 
   assignTestPlayer(player, context);
 
-  const assignedPlayer = context.equipes[0][0];
+  const assignedPlayer = context.teams[0][0];
 
-  assertEquals("MIL", assignedPlayer.poste);
+  assertEquals("MIL", assignedPlayer.position);
   assertAlmostEquals(
     3.6,
-    assignedPlayer.noteAdj,
+    assignedPlayer.adjustedRating,
     0.000001,
-    "Une note de 4 avec un coefficient de 0.9 doit donner 3.6."
+    "A rating of 4 with a coefficient of 0.9 must produce 3.6."
   );
 }
 
 
-function testAssignPlayerWithMultiplePostesInSameLevel() {
+function testAssignPlayerWithMultiplePositionsInSameLevel() {
   const context = createAssignmentTestContext();
 
   /*
-   * Le poste DEF est déjà plein.
-   * Le joueur doit donc prendre MIL, qui se trouve dans la même cellule.
+   * The DEF position is already full.
+   * The player must therefore take MIL, which is in the same cell.
    */
-  context.postesRestants[0] = [
+  context.remainingPositions[0] = [
     1, // G
     0, // DEF
     1, // MIL
@@ -175,86 +175,86 @@ function testAssignPlayerWithMultiplePostesInSameLevel() {
   ];
 
   const player = createTeamGeneratorTestPlayer({
-    name: "DEF ou MIL",
-    note: 4,
-    postes: ["DEF,MIL", "", "", ""]
+    name: "DEF or MIL",
+    rating: 4,
+    positions: ["DEF,MIL", "", "", ""]
   });
 
   assignTestPlayer(player, context);
 
-  const assignedPlayer = context.equipes[0][0];
+  const assignedPlayer = context.teams[0][0];
 
-  assertEquals("MIL", assignedPlayer.poste);
-  assertAlmostEquals(4, assignedPlayer.noteAdj);
+  assertEquals("MIL", assignedPlayer.position);
+  assertAlmostEquals(4, assignedPlayer.adjustedRating);
 }
 
 
-function testAssignPlayerFallsBackToNextPosteLevel() {
+function testAssignPlayerFallsBackToNextPositionLevel() {
   const context = createAssignmentTestContext();
 
   /*
-   * DEF est son poste de niveau 1, mais il n'y a plus de place.
-   * MIL est son poste de niveau 2.
+   * DEF is the player's level 1 position, but no slot remains.
+   * MIL is the player's level 2 position.
    */
-  context.postesRestants[0][1] = 0;
+  context.remainingPositions[0][1] = 0;
 
   const player = createTeamGeneratorTestPlayer({
     name: "DEF puis MIL",
-    note: 5,
-    postes: ["DEF", "MIL", "", ""]
+    rating: 5,
+    positions: ["DEF", "MIL", "", ""]
   });
 
   assignTestPlayer(player, context);
 
-  const assignedPlayer = context.equipes[0][0];
+  const assignedPlayer = context.teams[0][0];
 
-  assertEquals("MIL", assignedPlayer.poste);
-  assertAlmostEquals(4.5, assignedPlayer.noteAdj);
+  assertEquals("MIL", assignedPlayer.position);
+  assertAlmostEquals(4.5, assignedPlayer.adjustedRating);
 }
 
 
 function testAssignPlayerOutOfPosition() {
   const context = createAssignmentTestContext();
 
-  context.postesRestants[0] = [0, 0, 0, 0, 0];
+  context.remainingPositions[0] = [0, 0, 0, 0, 0];
 
   const player = createTeamGeneratorTestPlayer({
-    name: "Sans place",
-    note: 4,
-    postes: ["DEF", "MIL", "AIL", "BUT"]
+    name: "No available slot",
+    rating: 4,
+    positions: ["DEF", "MIL", "AIL", "BUT"]
   });
 
   assignTestPlayer(player, context);
 
-  const assignedPlayer = context.equipes[0][0];
+  const assignedPlayer = context.teams[0][0];
 
-  assertEquals("Hors poste", assignedPlayer.poste);
+  assertEquals("Out of position", assignedPlayer.position);
   assertAlmostEquals(
     2.4,
-    assignedPlayer.noteAdj,
+    assignedPlayer.adjustedRating,
     0.000001,
-    "Une note de 4 avec le coefficient hors poste 0.6 doit donner 2.4."
+    "A rating of 4 with the out-of-position coefficient 0.6 must produce 2.4."
   );
 }
 
 
-function testAssignPlayerConsumesPosteSlot() {
+function testAssignPlayerConsumesPositionSlot() {
   const context = createAssignmentTestContext();
 
   const player = createTeamGeneratorTestPlayer({
-    name: "Défenseur",
-    note: 3.5,
-    postes: ["DEF", "", "", ""]
+    name: "Defender",
+    rating: 3.5,
+    positions: ["DEF", "", "", ""]
   });
 
-  assertEquals(2, context.postesRestants[0][1]);
+  assertEquals(2, context.remainingPositions[0][1]);
 
   assignTestPlayer(player, context);
 
   assertEquals(
     1,
-    context.postesRestants[0][1],
-    "Une place de défenseur doit avoir été consommée."
+    context.remainingPositions[0][1],
+    "One defender slot must have been consumed."
   );
 }
 
@@ -264,19 +264,19 @@ function testAssignPlayerUpdatesTeamData() {
 
   context.teamScore[0] = 5;
   context.teamRawScore[0] = 6;
-  context.teamCount[0] = 1;
+  context.playerCountByTeam[0] = 1;
 
   const player = createTeamGeneratorTestPlayer({
-    name: "Milieu",
-    note: 4,
-    postes: ["MIL", "", "", ""]
+    name: "Midfielder",
+    rating: 4,
+    positions: ["MIL", "", "", ""]
   });
 
   assignTestPlayer(player, context);
 
   assertAlmostEquals(9, context.teamScore[0]);
   assertAlmostEquals(10, context.teamRawScore[0]);
-  assertEquals(2, context.teamCount[0]);
+  assertEquals(2, context.playerCountByTeam[0]);
 }
 
 
@@ -285,24 +285,24 @@ function testAssignPlayerAddsPlayerResult() {
 
   const player = createTeamGeneratorTestPlayer({
     id: "player-42",
-    name: "Joueur test",
-    note: 3.5,
-    postes: ["AIL", "", "", ""]
+    name: "Test player",
+    rating: 3.5,
+    positions: ["AIL", "", "", ""]
   });
 
   assignTestPlayer(player, context);
 
-  assertEquals(1, context.equipes[0].length);
+  assertEquals(1, context.teams[0].length);
 
   assertDeepEquals(
     {
       id: "player-42",
-      name: "Joueur test",
-      poste: "AIL",
-      noteRaw: 3.5,
-      noteAdj: 3.5
+      name: "Test player",
+      position: "AIL",
+      rawRating: 3.5,
+      adjustedRating: 3.5
     },
-    context.equipes[0][0]
+    context.teams[0][0]
   );
 }
 
@@ -311,73 +311,73 @@ function testAssignPlayerAsSeventhPlayer() {
   const context = createAssignmentTestContext();
 
   /*
-   * Six joueurs sont déjà présents et aucun gardien n'a été affecté.
-   * Ton code transforme alors le joueur suivant en "7eme".
+   * Six players are already present and no goalkeeper has been assigned.
+   * The code then turns the next player into "7th".
    */
-  context.teamCount[0] = 6;
-  context.postesRestants[0][0] = 1;
+  context.playerCountByTeam[0] = 6;
+  context.remainingPositions[0][0] = 1;
 
   const player = createTeamGeneratorTestPlayer({
-    name: "Septième",
-    note: 4.2,
-    postes: ["DEF", "", "", ""]
+    name: "Seventh",
+    rating: 4.2,
+    positions: ["DEF", "", "", ""]
   });
 
   assignTestPlayer(player, context);
 
-  const assignedPlayer = context.equipes[0][0];
+  const assignedPlayer = context.teams[0][0];
 
-  assertEquals("7eme", assignedPlayer.poste);
-  assertAlmostEquals(4.2, assignedPlayer.noteAdj);
-  assertEquals(7, context.teamCount[0]);
+  assertEquals("7th", assignedPlayer.position);
+  assertAlmostEquals(4.2, assignedPlayer.adjustedRating);
+  assertEquals(7, context.playerCountByTeam[0]);
 }
 
 
 function testAssignSeventhPlayerWhenGoalkeeperAlreadyAssigned() {
   const context = createAssignmentTestContext();
 
-  context.teamCount[0] = 6;
+  context.playerCountByTeam[0] = 6;
 
   /*
-   * Le poste G est déjà occupé.
-   * La règle spéciale "7eme" ne doit donc pas s'appliquer.
+   * The G position is already occupied.
+   * The special "7th" rule must therefore not apply.
    */
-  context.postesRestants[0][0] = 0;
+  context.remainingPositions[0][0] = 0;
 
   const player = createTeamGeneratorTestPlayer({
-    name: "Septième défenseur",
-    note: 4,
-    postes: ["DEF", "", "", ""]
+    name: "Seventh defender",
+    rating: 4,
+    positions: ["DEF", "", "", ""]
   });
 
   assignTestPlayer(player, context);
 
-  const assignedPlayer = context.equipes[0][0];
+  const assignedPlayer = context.teams[0][0];
 
-  assertEquals("DEF", assignedPlayer.poste);
-  assertAlmostEquals(4, assignedPlayer.noteAdj);
+  assertEquals("DEF", assignedPlayer.position);
+  assertAlmostEquals(4, assignedPlayer.adjustedRating);
 }
 
 
 function testAssignEighthPlayer() {
   const context = createAssignmentTestContext();
 
-  context.teamCount[0] = 7;
-  context.postesRestants[0][0] = 1;
+  context.playerCountByTeam[0] = 7;
+  context.remainingPositions[0][0] = 1;
 
   const player = createTeamGeneratorTestPlayer({
-    name: "Remplaçant",
-    note: 3.8,
-    postes: ["DEF", "", "", ""]
+    name: "Substitute",
+    rating: 3.8,
+    positions: ["DEF", "", "", ""]
   });
 
   assignTestPlayer(player, context);
 
-  const assignedPlayer = context.equipes[0][0];
+  const assignedPlayer = context.teams[0][0];
 
-  assertEquals("8eme", assignedPlayer.poste);
-  assertAlmostEquals(3.8, assignedPlayer.noteAdj);
-  assertEquals(8, context.teamCount[0]);
+  assertEquals("8th", assignedPlayer.position);
+  assertAlmostEquals(3.8, assignedPlayer.adjustedRating);
+  assertEquals(8, context.playerCountByTeam[0]);
 }
 
 
@@ -387,26 +387,26 @@ function testAssignEighthPlayer() {
 
 function createAssignmentTestContext() {
   return {
-    equipes: [[]],
+    teams: [[]],
     teamScore: [0],
     teamRawScore: [0],
-    teamCount: [0],
+    playerCountByTeam: [0],
 
     /*
      * G, DEF, MIL, AIL, BUT
      */
-    postesRestants: [
+    remainingPositions: [
       [1, 2, 1, 2, 1]
     ],
 
-    coeffPoste: {
+    positionCoefficients: {
       0: 1,
       1: 0.9,
       2: 0.8,
       3: 0.7
     },
 
-    coeffHorsPoste: 0.6
+    outOfPositionCoefficient: 0.6
   };
 }
 
@@ -414,9 +414,9 @@ function createAssignmentTestContext() {
 function createTeamGeneratorTestPlayer(overrides) {
   const defaultPlayer = {
     id: "test-player",
-    name: "Joueur test",
-    note: 3.5,
-    postes: ["", "", "", ""]
+    name: "Test player",
+    rating: 3.5,
+    positions: ["", "", "", ""]
   };
 
   return Object.assign(
@@ -431,12 +431,12 @@ function assignTestPlayer(player, context, teamIndex = 0) {
   assignPlayerToTeam(
     player,
     teamIndex,
-    context.equipes,
+    context.teams,
     context.teamScore,
     context.teamRawScore,
-    context.teamCount,
-    context.postesRestants,
-    context.coeffPoste,
-    context.coeffHorsPoste
+    context.playerCountByTeam,
+    context.remainingPositions,
+    context.positionCoefficients,
+    context.outOfPositionCoefficient
   );
 }

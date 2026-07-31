@@ -1,64 +1,64 @@
 /**
- * Point d'entrée des tests de teamDistributionService.gs.
+ * Entry point for the tests for teamDistributionService.gs.
  */
 function runTeamDistributionServiceTests() {
   return runTestSuite(
     "teamDistributionService.gs",
     [
       {
-        name: "La distribution aléatoire sélectionne la première équipe avec un hasard à 0",
+        name: "Random distribution selects the first team when random is 0",
         test: testRandomDistributionSelectsFirstTeam
       },
       {
-        name: "La distribution aléatoire sélectionne la dernière équipe avec un hasard proche de 1",
+        name: "Random distribution selects the last team when random is close to 1",
         test: testRandomDistributionSelectsLastTeam
       },
       {
-        name: "La distribution aléatoire retourne toujours un index valide",
+        name: "Random distribution always returns a valid index",
         test: testRandomDistributionReturnsValidIndex
       },
       {
-        name: "La distribution modulo répartit les joueurs cycliquement",
+        name: "Modulo distribution assigns players cyclically",
         test: testModuloDistribution
       },
       {
-        name: "La distribution modulo recommence à la première équipe",
+        name: "Modulo distribution wraps around to the first team",
         test: testModuloDistributionWrapsAround
       },
       {
-        name: "La distribution snake suit le bon ordre avec deux équipes",
+        name: "Snake distribution follows the correct order with two teams",
         test: testSnakeDistributionWithTwoTeams
       },
       {
-        name: "La distribution snake suit le bon ordre avec trois équipes",
+        name: "Snake distribution follows the correct order with three teams",
         test: testSnakeDistributionWithThreeTeams
       },
       {
-        name: "La distribution snake retourne toujours un index valide",
+        name: "Snake distribution always returns a valid index",
         test: testSnakeDistributionReturnsValidIndex
       },
       {
-        name: "La distribution par effectif choisit l'équipe ayant le moins de joueurs",
+        name: "Player-count distribution selects the team with the fewest players",
         test: testLessPlayerDistributionSelectsSmallestTeam
       },
       {
-        name: "La distribution par effectif choisit aléatoirement entre plusieurs équipes minimales",
+        name: "Player-count distribution randomly selects among tied smallest teams",
         test: testLessPlayerDistributionHandlesTies
       },
       {
-        name: "La distribution par effectif ignore les équipes situées après nbEquipesCompletes",
+        name: "Player-count distribution ignores teams after fullTeamCount",
         test: testLessPlayerDistributionIgnoresExtraTeams
       },
       {
-        name: "La distribution par score choisit l'équipe la plus faible",
+        name: "Score distribution selects the weakest team",
         test: testWeakestDistributionSelectsWeakestTeam
       },
       {
-        name: "La distribution par score choisit aléatoirement entre plusieurs équipes faibles",
+        name: "Score distribution randomly selects among tied weakest teams",
         test: testWeakestDistributionHandlesTies
       },
       {
-        name: "La distribution par score ignore les équipes situées après nbEquipesCompletes",
+        name: "Score distribution ignores teams after fullTeamCount",
         test: testWeakestDistributionIgnoresExtraTeams
       }
     ]
@@ -111,7 +111,7 @@ function testRandomDistributionReturnsValidIndex() {
 
     assertTrue(
       result >= 0 && result < 4,
-      `Index invalide pour random=${randomValue} : ${result}`
+      `Invalid index for random=${randomValue} : ${result}`
     );
   });
 }
@@ -230,7 +230,7 @@ function testSnakeDistributionReturnsValidIndex() {
 
     assertTrue(
       result >= 0 && result < 4,
-      `Index invalide pour le joueur ${index} : ${result}`
+      `Invalid index for player ${index} : ${result}`
     );
   }
 }
@@ -250,24 +250,24 @@ function testLessPlayerDistributionSelectsSmallestTeam() {
   assertEquals(
     1,
     result,
-    "L'équipe 1 possède le plus petit effectif."
+    "Team 1 has the fewest players."
   );
 }
 
 
 function testLessPlayerDistributionHandlesTies() {
-  const teamCount = [5, 7, 5];
+  const playerCountByTeam = [5, 7, 5];
 
   const firstCandidate =
     getTeamIndexLessPlayerDistribution(
-      teamCount,
+      playerCountByTeam,
       3,
       () => 0
     );
 
   const secondCandidate =
     getTeamIndexLessPlayerDistribution(
-      teamCount,
+      playerCountByTeam,
       3,
       () => 0.999999
     );
@@ -275,24 +275,24 @@ function testLessPlayerDistributionHandlesTies() {
   assertEquals(
     0,
     firstCandidate,
-    "Le premier candidat minimal doit être choisi."
+    "The first minimum candidate must be selected."
   );
 
   assertEquals(
     2,
     secondCandidate,
-    "Le dernier candidat minimal doit être choisi."
+    "The last minimum candidate must be selected."
   );
 }
 
 
 function testLessPlayerDistributionIgnoresExtraTeams() {
   /*
-   * L'équipe située à l'index 2 représente par exemple
-   * une équipe partielle.
+   * The team at index 2 represents, for example,
+   * a partial team.
    *
-   * Elle a moins de joueurs, mais nbEquipesCompletes vaut 2 :
-   * seuls les index 0 et 1 doivent être étudiés.
+   * It has fewer players, but fullTeamCount is 2:
+   * only indexes 0 and 1 must be considered.
    */
   const result = getTeamIndexLessPlayerDistribution(
     [7, 6, 1],
@@ -318,7 +318,7 @@ function testWeakestDistributionSelectsWeakestTeam() {
   assertEquals(
     1,
     result,
-    "L'équipe 1 possède le plus petit score."
+    "Team 1 has the lowest score."
   );
 }
 
@@ -343,21 +343,21 @@ function testWeakestDistributionHandlesTies() {
   assertEquals(
     0,
     firstCandidate,
-    "Le premier candidat faible doit être choisi."
+    "The first weak candidate must be selected."
   );
 
   assertEquals(
     2,
     secondCandidate,
-    "Le dernier candidat faible doit être choisi."
+    "The last weak candidate must be selected."
   );
 }
 
 
 function testWeakestDistributionIgnoresExtraTeams() {
   /*
-   * L'équipe à l'index 2 a le plus petit score,
-   * mais elle ne fait pas partie des équipes complètes.
+   * The team at index 2 has the lowest score,
+   * but it is not one of the full teams.
    */
   const result = getTeamIndexWeakestDistribution(
     [24, 22, 5],

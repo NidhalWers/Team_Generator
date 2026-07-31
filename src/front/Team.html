@@ -1,19 +1,19 @@
-<!-- MODALE DES ÉQUIPES -->
+<!-- TEAMS MODAL -->
 <div id="teams-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="teams-modal-title">
   <div class="modal-card teams-modal-card">
 
     <div class="modal-header teams-modal-header">
       <div>
         <h2 id="teams-modal-title">
-          ⚽ Équipes générées
+          ⚽ Generated teams
         </h2>
 
         <div class="teams-modal-subtitle">
-          Répartition optimisée des joueurs sélectionnés
+          Optimized distribution of selected players
         </div>
       </div>
 
-      <button type="button" class="btn-icon" onclick="closeTeamsModal()" aria-label="Fermer les équipes" title="Fermer">
+      <button type="button" class="btn-icon" onclick="closeTeamsModal()" aria-label="Close teams" title="Close">
         ✕
       </button>
     </div>
@@ -24,15 +24,15 @@
 
     <div class="teams-modal-actions">
       <button id="toggle-notes-button" type="button" class="btn-secondary" onclick="toggleNotes()">
-        Analyser
+        Analyze
       </button>
 
       <button type="button" class="btn-secondary" onclick="cancelGeneratedTeams()">
-        Annuler
+        Cancel
       </button>
 
-      <button id="regenerate-teams-button" type="button" onclick="regenererEquipes()">
-        🔄 Régénérer
+      <button id="regenerate-teams-button" type="button" onclick="regenerateTeams()">
+        🔄 Regenerate
       </button>
     </div>
 
@@ -46,13 +46,13 @@
 
 
   /**
-   * Génère les équipes à partir des joueurs actuellement cochés.
+   * Generates teams from the currently selected players.
    */
-  function generer() {
+  function generate() {
     const selectedIds = getSelectedPlayerIds();
 
     if (selectedIds.length < 7) {
-      showGenerationError("⚠️ Minimum 7 joueurs requis.");
+      showGenerationError("⚠️ At least 7 players are required.");
       return;
     }
 
@@ -68,26 +68,26 @@
           return;
         }
 
-        afficherEquipes(result);
+        displayTeams(result);
         openTeamsModal();
       })
       .withFailureHandler(function (error) {
         hideLoader();
 
-        showGenerationError("⚠️ Une erreur est survenue : " + (error.message || error));
+        showGenerationError("⚠️ An error occurred: " + (error.message || error));
       })
-      .genererEquipes(selectedIds);
+      .generateTeams(selectedIds);
   }
 
 
   /**
-   * Régénère les équipes avec la sélection actuelle.
+   * Regenerates teams using the current selection.
    */
-  function regenererEquipes() {
+  function regenerateTeams() {
     const selectedIds = getSelectedPlayerIds();
 
     if (selectedIds.length < 7) {
-      showTeamsModalError("Minimum 7 joueurs requis.");
+      showTeamsModalError("At least 7 players are required.");
       return;
     }
 
@@ -105,7 +105,7 @@
           return;
         }
 
-        afficherEquipes(result);
+        displayTeams(result);
       })
       .withFailureHandler(function (error) {
         hideLoader();
@@ -113,15 +113,15 @@
 
         showTeamsModalError(
           error.message ||
-          "Une erreur est survenue pendant la génération."
+          "An error occurred while generating teams."
         );
       })
-      .genererEquipes(selectedIds);
+      .generateTeams(selectedIds);
   }
 
 
   /**
-   * Retourne les IDs des joueurs sélectionnés dans la page.
+   * Returns the IDs of the players selected on the page.
    */
   function getSelectedPlayerIds() {
     return Array
@@ -135,9 +135,9 @@
 
 
   /**
-   * Construit l'affichage des équipes dans la modale.
+   * Builds the team display in the modal.
    */
-  function afficherEquipes(result) {
+  function displayTeams(result) {
     const teams = result.teams;
     const rawAvg = result.rawAvg;
     const adjAvg = result.adjAvg;
@@ -152,24 +152,24 @@
         <section class="team">
           <div class="team-header">
             <h3>
-              Équipe ${teamIndex + 1}
+              Team ${teamIndex + 1}
             </h3>
 
             <span class="team-player-count">
-              ${team.length} joueur${team.length > 1 ? "s" : ""}
+              ${team.length} player${team.length > 1 ? "s" : ""}
             </span>
           </div>
 
           <div class="team-avg hidden">
             <div class="team-average-line">
-              <span>⭐ Moyenne brute</span>
+              <span>⭐ Raw average</span>
               <strong>
                 ${rawAvg[teamIndex].toFixed(2)} / 5
               </strong>
             </div>
 
             <div class="team-average-line">
-              <span>🔥 Moyenne ajustée</span>
+              <span>🔥 Adjusted average</span>
               <strong>
                 ${adjAvg[teamIndex].toFixed(2)} / 5
               </strong>
@@ -181,7 +181,7 @@
 
       team.forEach(player => {
         const diff =
-          player.noteAdj - player.noteRaw;
+          player.adjustedRating - player.rawRating;
 
         let diffClass = "diff-neutral";
         let diffText = "";
@@ -202,19 +202,19 @@
               </span>
 
               <span class="team-player-position">
-                ${escapeTeamHtml(player.poste)}
+                ${escapeTeamHtml(player.position)}
               </span>
             </span>
 
-            <span class="note-adj hidden">
+            <span class="adjusted-rating hidden">
               <strong>
-                ${player.noteAdj.toFixed(2)}
+                ${player.adjustedRating.toFixed(2)}
               </strong>
 
               ${diffText
             ? `
                     <span
-                      class="note-diff ${diffClass}"
+                      class="rating-diff ${diffClass}"
                     >
                       ${diffText}
                     </span>
@@ -285,7 +285,7 @@
 
     document
       .querySelectorAll(
-        "#teams-modal .note-adj, " +
+        "#teams-modal .adjusted-rating, " +
         "#teams-modal .team-avg"
       )
       .forEach(element => {
@@ -311,8 +311,8 @@
 
     button.textContent =
       teamsNotesVisible
-        ? "Masquer l'analyse"
-        : "Analyser";
+        ? "Hide analysis"
+        : "Analyze";
   }
 
   function reopenTeamsModal() {
@@ -350,8 +350,8 @@
 
     button.textContent =
       isLoading
-        ? "Génération..."
-        : "🔄 Régénérer";
+        ? "Generating..."
+        : "🔄 Regenerate";
   }
 
 
@@ -378,9 +378,9 @@
 
 
   /**
-   * Affiche les erreurs de sélection dans la page principale.
+   * Displays selection errors on the main page.
    *
-   * Cette fonction continue d'utiliser #result si cet élément existe.
+   * This function continues to use #result when that element exists.
    */
   function showGenerationError(message) {
     const resultElement =
@@ -417,7 +417,7 @@
 
 
   /**
-   * Fermeture avec la touche Échap.
+   * Closes with the Escape key.
    */
   document.addEventListener(
     "keydown",

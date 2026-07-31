@@ -1,5 +1,5 @@
 /**
- * Point d'entrée des tests de playerCreationService.gs.
+ * Entry point for the tests for playerCreationService.gs.
  */
 function runPlayerCreationServiceTests() {
   return runTestSuite(
@@ -7,73 +7,73 @@ function runPlayerCreationServiceTests() {
     [
       // normalizePositionCell
       {
-        name: "normalizePositionCell retourne une chaîne vide sans valeur",
+        name: "normalizePositionCell returns an empty string when no value is provided",
         test: testNormalizePositionCellWithEmptyValue
       },
       {
-        name: "normalizePositionCell normalise une chaîne simple",
+        name: "normalizePositionCell normalizes a simple string",
         test: testNormalizePositionCellWithString
       },
       {
-        name: "normalizePositionCell normalise plusieurs postes dans une chaîne",
+        name: "normalizePositionCell normalizes multiple positions in a string",
         test: testNormalizePositionCellWithMultipleStringValues
       },
       {
-        name: "normalizePositionCell normalise un tableau de postes",
+        name: "normalizePositionCell normalizes an array of positions",
         test: testNormalizePositionCellWithArray
       },
       {
-        name: "normalizePositionCell ignore les valeurs vides",
+        name: "normalizePositionCell ignores empty values",
         test: testNormalizePositionCellIgnoresEmptyValues
       },
 
       // validateAndNormalizePlayerInput
       {
-        name: "validateAndNormalizePlayerInput normalise une saisie valide",
+        name: "validateAndNormalizePlayerInput normalizes valid input",
         test: testValidatePlayerInputValidInput
       },
       {
-        name: "validateAndNormalizePlayerInput accepte plusieurs postes par niveau",
+        name: "validateAndNormalizePlayerInput accepts multiple positions per level",
         test: testValidatePlayerInputWithMultiplePositions
       },
       {
-        name: "validateAndNormalizePlayerInput refuse une saisie absente",
+        name: "validateAndNormalizePlayerInput rejects missing input",
         test: testValidatePlayerInputMissingInput
       },
       {
-        name: "validateAndNormalizePlayerInput refuse un nom vide",
+        name: "validateAndNormalizePlayerInput rejects an empty name",
         test: testValidatePlayerInputEmptyName
       },
       {
-        name: "validateAndNormalizePlayerInput nettoie le nom",
+        name: "validateAndNormalizePlayerInput trims the name",
         test: testValidatePlayerInputTrimsName
       },
       {
-        name: "validateAndNormalizePlayerInput refuse une note inférieure à 0,5",
-        test: testValidatePlayerInputNoteTooLow
+        name: "validateAndNormalizePlayerInput rejects a rating below 0.5",
+        test: testValidatePlayerInputRatingTooLow
       },
       {
-        name: "validateAndNormalizePlayerInput refuse une note supérieure à 5",
-        test: testValidatePlayerInputNoteTooHigh
+        name: "validateAndNormalizePlayerInput rejects a rating above 5",
+        test: testValidatePlayerInputRatingTooHigh
       },
       {
-        name: "validateAndNormalizePlayerInput refuse une note non numérique",
-        test: testValidatePlayerInputInvalidNote
+        name: "validateAndNormalizePlayerInput rejects a non-numeric rating",
+        test: testValidatePlayerInputInvalidRating
       },
       {
-        name: "validateAndNormalizePlayerInput refuse une note hors palier de 0,5",
+        name: "validateAndNormalizePlayerInput rejects a rating outside 0.5 increments",
         test: testValidatePlayerInputInvalidHalfStep
       },
       {
-        name: "validateAndNormalizePlayerInput refuse un poste inconnu",
+        name: "validateAndNormalizePlayerInput rejects an unknown position",
         test: testValidatePlayerInputUnknownPosition
       },
       {
-        name: "validateAndNormalizePlayerInput refuse un poste présent dans plusieurs niveaux",
+        name: "validateAndNormalizePlayerInput rejects a position present in multiple levels",
         test: testValidatePlayerInputDuplicatedPosition
       },
       {
-        name: "validateAndNormalizePlayerInput accepte l'absence de postes",
+        name: "validateAndNormalizePlayerInput accepts no positions",
         test: testValidatePlayerInputWithoutPositions
       }
     ]
@@ -149,8 +149,8 @@ function testValidatePlayerInputValidInput() {
   assertDeepEquals(
     {
       name: "Alice",
-      manualNote: 3.5,
-      postes: [
+      manualRating: 3.5,
+      positions: [
         "DEF",
         "MIL",
         "AIL",
@@ -164,10 +164,10 @@ function testValidatePlayerInputValidInput() {
 
 function testValidatePlayerInputWithMultiplePositions() {
   const input = createValidPlayerCreationInput({
-    poste1: ["DEF", "MIL"],
-    poste2: ["AIL"],
-    poste3: ["BUT"],
-    poste4: []
+    position1: ["DEF", "MIL"],
+    position2: ["AIL"],
+    position3: ["BUT"],
+    position4: []
   });
 
   const result =
@@ -180,7 +180,7 @@ function testValidatePlayerInputWithMultiplePositions() {
       "BUT",
       ""
     ],
-    result.postes
+    result.positions
   );
 }
 
@@ -188,7 +188,7 @@ function testValidatePlayerInputWithMultiplePositions() {
 function testValidatePlayerInputMissingInput() {
   assertThrows(
     () => validateAndNormalizePlayerInput(null),
-    "Les informations du joueur sont manquantes"
+    "Player information is missing"
   );
 }
 
@@ -200,7 +200,7 @@ function testValidatePlayerInputEmptyName() {
 
   assertThrows(
     () => validateAndNormalizePlayerInput(input),
-    "Le nom du joueur est obligatoire"
+    "The player name is required"
   );
 }
 
@@ -220,87 +220,87 @@ function testValidatePlayerInputTrimsName() {
 }
 
 
-function testValidatePlayerInputNoteTooLow() {
+function testValidatePlayerInputRatingTooLow() {
   const input = createValidPlayerCreationInput({
-    manualNote: 0
+    manualRating: 0
   });
 
   assertThrows(
     () => validateAndNormalizePlayerInput(input),
-    "comprise entre 0,5 et 5"
+    "between 0.5 and 5"
   );
 }
 
 
-function testValidatePlayerInputNoteTooHigh() {
+function testValidatePlayerInputRatingTooHigh() {
   const input = createValidPlayerCreationInput({
-    manualNote: 5.5
+    manualRating: 5.5
   });
 
   assertThrows(
     () => validateAndNormalizePlayerInput(input),
-    "comprise entre 0,5 et 5"
+    "between 0.5 and 5"
   );
 }
 
 
-function testValidatePlayerInputInvalidNote() {
+function testValidatePlayerInputInvalidRating() {
   const input = createValidPlayerCreationInput({
-    manualNote: "incorrect"
+    manualRating: "incorrect"
   });
 
   assertThrows(
     () => validateAndNormalizePlayerInput(input),
-    "comprise entre 0,5 et 5"
+    "between 0.5 and 5"
   );
 }
 
 
 function testValidatePlayerInputInvalidHalfStep() {
   const input = createValidPlayerCreationInput({
-    manualNote: 3.7
+    manualRating: 3.7
   });
 
   assertThrows(
     () => validateAndNormalizePlayerInput(input),
-    "palier de 0,5"
+    "increments of 0.5"
   );
 }
 
 
 function testValidatePlayerInputUnknownPosition() {
   const input = createValidPlayerCreationInput({
-    poste1: ["DEF", "LIBERO"]
+    position1: ["DEF", "LIBERO"]
   });
 
   assertThrows(
     () => validateAndNormalizePlayerInput(input),
-    "Poste inconnu : LIBERO"
+    "Unknown position: LIBERO"
   );
 }
 
 
 function testValidatePlayerInputDuplicatedPosition() {
   const input = createValidPlayerCreationInput({
-    poste1: ["DEF", "MIL"],
-    poste2: ["AIL"],
-    poste3: ["DEF"],
-    poste4: []
+    position1: ["DEF", "MIL"],
+    position2: ["AIL"],
+    position3: ["DEF"],
+    position4: []
   });
 
   assertThrows(
     () => validateAndNormalizePlayerInput(input),
-    "Un poste ne peut apparaître que dans un seul niveau : DEF"
+    "A position may appear in only one level: DEF"
   );
 }
 
 
 function testValidatePlayerInputWithoutPositions() {
   const input = createValidPlayerCreationInput({
-    poste1: [],
-    poste2: [],
-    poste3: [],
-    poste4: []
+    position1: [],
+    position2: [],
+    position3: [],
+    position4: []
   });
 
   const result =
@@ -308,7 +308,7 @@ function testValidatePlayerInputWithoutPositions() {
 
   assertDeepEquals(
     ["", "", "", ""],
-    result.postes
+    result.positions
   );
 }
 
@@ -320,11 +320,11 @@ function testValidatePlayerInputWithoutPositions() {
 function createValidPlayerCreationInput(overrides) {
   const defaultInput = {
     name: "Alice",
-    poste1: "DEF",
-    poste2: "MIL",
-    poste3: "AIL",
-    poste4: "BUT",
-    manualNote: 3.5
+    position1: "DEF",
+    position2: "MIL",
+    position3: "AIL",
+    position4: "BUT",
+    manualRating: 3.5
   };
 
   return Object.assign(

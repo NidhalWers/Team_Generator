@@ -2,7 +2,7 @@ function getSheetData(sheetName, headerIndex) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
 
   if (!sheet) {
-    throw new Error(`La feuille "${sheetName}" est introuvable.`);
+    throw new Error(`The "${sheetName}" sheet could not be found.`);
   }
 
   const data = sheet.getDataRange().getValues();
@@ -50,14 +50,13 @@ function shuffleArray(array, randomFunction = Math.random) {
 }
 
 /**
- * Retourne les numéros de colonnes, indexés à partir de 1,
- * en utilisant les intitulés des en-têtes.
+ * Returns one-based column numbers using the header labels.
  */
 function getSheetHeaderMap(sheet, headerRow) {
   const lastColumn = sheet.getLastColumn();
 
   if (lastColumn === 0) {
-    throw new Error(`La feuille "${sheet.getName()}" ne possède aucun en-tête.`);
+    throw new Error(`The "${sheet.getName()}" sheet has no headers.`);
   }
 
   const headers = sheet

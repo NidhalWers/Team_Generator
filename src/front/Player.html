@@ -1,19 +1,19 @@
 <script>
-  let joueursData = [];
+  let playersData = [];
 
 
   google.script.run
-    .withSuccessHandler(function(joueurs) {
-      joueursData = joueurs;
+    .withSuccessHandler(function(players) {
+      playersData = players;
       renderPlayerList();
     })
-    .getJoueurs();
+    .getPlayers();
 
 
   function renderPlayerList() {
     document
       .getElementById("liste")
-      .innerHTML = joueursData
+      .innerHTML = playersData
         .map(buildPlayerCardHtml)
         .join("");
   }
@@ -34,15 +34,15 @@
           >
 
           <span class="player-name">
-            ${escapeHtml(player.nom)}
+            ${escapeHtml(player.name)}
           </span>
         </label>
 
         <button
           type="button"
           class="player-edit-button"
-          aria-label="Modifier ${escapeHtml(player.nom)}"
-          title="Modifier le joueur"
+          aria-label="Edit ${escapeHtml(player.name)}"
+          title="Edit player"
           onclick="
             openEditPlayerModal(
               event,
@@ -58,7 +58,7 @@
 
 
   function addPlayerToSelectionList(player) {
-    joueursData.push(player);
+    playersData.push(player);
 
     document
       .getElementById("liste")
@@ -73,14 +73,14 @@
     updatedPlayer
   ) {
     const playerIndex =
-      joueursData.findIndex(player => {
+      playersData.findIndex(player => {
         return String(player.id) ===
           String(updatedPlayer.id);
       });
 
     if (playerIndex !== -1) {
-      joueursData[playerIndex] = {
-        ...joueursData[playerIndex],
+      playersData[playerIndex] = {
+        ...playersData[playerIndex],
         ...updatedPlayer
       };
     }
@@ -110,11 +110,11 @@
       );
 
     nameElement.textContent =
-      updatedPlayer.nom;
+      updatedPlayer.name;
 
     editButton.setAttribute(
       "aria-label",
-      `Modifier ${updatedPlayer.nom}`
+      `Edit ${updatedPlayer.name}`
     );
   }
 

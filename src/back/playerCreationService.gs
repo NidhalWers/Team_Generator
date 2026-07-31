@@ -1,10 +1,10 @@
-const PLAYER_SHEET_NAME = "Joueurs";
+const PLAYER_SHEET_NAME = "Players";
 const NOTES_SHEET_NAME = "Notes";
 
 const PLAYER_HEADERS_ROW = 1;
 const NOTES_HEADERS_ROW = 2;
 
-const MANUAL_NOTE_HEADER = "Note manuelle (ancien format)";
+const MANUAL_RATING_HEADER = "Manual rating (legacy format)";
 
 const PLAYER_POSITION_VALUES = [
   "G",
@@ -16,22 +16,22 @@ const PLAYER_POSITION_VALUES = [
 
 
 /**
- * Ajoute un joueur dans les feuilles Joueurs et Notes.
+ * Adds a player to the Players and Notes sheets.
  *
  * @param {{
  *   name: string,
- *   poste1: string,
- *   poste2: string,
- *   poste3: string,
- *   poste4: string,
- *   manualNote: number
+ *   position1: string,
+ *   position2: string,
+ *   position3: string,
+ *   position4: string,
+ *   manualRating: number
  * }} playerInput
  *
  * @return {{
  *   success: boolean,
  *   player: {
  *     id: string,
- *     nom: string
+ *     name: string
  *   }
  * }}
  */
@@ -50,7 +50,7 @@ function addPlayer(playerInput) {
     const notesSheet = spreadsheet.getSheetByName(NOTES_SHEET_NAME);
 
     if (!playersSheet || !notesSheet) {
-      throw new Error('Les feuilles "Joueurs" et "Notes" doivent être initialisées.');
+      throw new Error('The "Players" and "Notes" sheets must be initialized.');
     }
 
     const playerHeaderMap = getSheetHeaderMap(playersSheet, PLAYER_HEADERS_ROW);
@@ -61,11 +61,11 @@ function addPlayer(playerInput) {
     const playerRow = appendPlayerRow(playersSheet, playerHeaderMap, playerId, normalizedInput);
 
     try {
-      appendNotesRow(notesSheet, notesHeaderMap, playerId, normalizedInput.manualNote);
+      appendNotesRow(notesSheet, notesHeaderMap, playerId, normalizedInput.manualRating);
     } catch (error) {
       /*
-       * Si l'écriture dans Notes échoue, on retire la ligne Joueurs
-       * afin de ne pas laisser les deux feuilles désynchronisées.
+       * If writing to Notes fails, remove the Players row to keep the two
+       * sheets synchronized.
        */
       playersSheet.deleteRow(playerRow);
       throw error;
@@ -77,7 +77,7 @@ function addPlayer(playerInput) {
       success: true,
       player: {
         id: String(playerId),
-        nom: normalizedInput.name
+        name: normalizedInput.name
       }
     };
 
@@ -88,54 +88,54 @@ function addPlayer(playerInput) {
 
 
 /**
- * Valide et normalise les données provenant de la WebApp.
+ * Validates and normalizes data received from the web app.
  */
 function validateAndNormalizePlayerInput(playerInput) {
   if (!playerInput) {
-    throw new Error("Les informations du joueur sont manquantes.");
+    throw new Error("Player information is missing.");
   }
 
   const name = String(playerInput.name || "").trim();
 
   if (!name) {
-    throw new Error("Le nom du joueur est obligatoire.");
+    throw new Error("The player name is required.");
   }
 
-  const manualNote = Number(playerInput.manualNote);
+  const manualRating = Number(playerInput.manualRating);
 
-  if (!Number.isFinite(manualNote) || manualNote < 0.5 || manualNote > 5) {
-    throw new Error("La note manuelle doit être comprise entre 0,5 et 5.");
+  if (!Number.isFinite(manualRating) || manualRating < 0.5 || manualRating > 5) {
+    throw new Error("The manual rating must be between 0.5 and 5.");
   }
 
-  if (!isHalfStep(manualNote)) {
-    throw new Error("La note manuelle doit évoluer par palier de 0,5.");
+  if (!isHalfStep(manualRating)) {
+    throw new Error("The manual rating must use increments of 0.5.");
   }
 
-  const postes = [
-    normalizePositionCell(playerInput.poste1),
-    normalizePositionCell(playerInput.poste2),
-    normalizePositionCell(playerInput.poste3),
-    normalizePositionCell(playerInput.poste4)
+  const positions = [
+    normalizePositionCell(playerInput.position1),
+    normalizePositionCell(playerInput.position2),
+    normalizePositionCell(playerInput.position3),
+    normalizePositionCell(playerInput.position4)
   ];
 
-  const allPositions = postes.flatMap(positionCell => positionCell ? positionCell.split(",") : []);
+  const allPositions = positions.flatMap(positionCell => positionCell ? positionCell.split(",") : []);
 
   const invalidPositions = allPositions.filter(position => !PLAYER_POSITION_VALUES.includes(position));
 
   if (invalidPositions.length > 0) {
-    throw new Error(`Poste inconnu : ${invalidPositions.join(", ")}.`);
+    throw new Error(`Unknown position: ${invalidPositions.join(", ")}.`);
   }
 
   const duplicatedPositions = getDuplicatedValues(allPositions);
 
   if (duplicatedPositions.length > 0) {
-    throw new Error("Un poste ne peut apparaître que dans un seul niveau : " + duplicatedPositions.join(", ") + ".");
+    throw new Error("A position may appear in only one level: " + duplicatedPositions.join(", ") + ".");
   }
 
   return {
     name,
-    manualNote,
-    postes
+    manualRating,
+    positions
   };
 }
 
@@ -157,7 +157,7 @@ function normalizePositionCell(value) {
 }
 
 /**
- * L'ID est numérique et unique dans les deux feuilles.
+ * The ID is numeric and unique across both sheets.
  */
 function generateNextPlayerId(playersSheet, notesSheet, playerHeaderMap, notesHeaderMap) {
   const playerIds = readNumericColumnValues(playersSheet, PLAYER_HEADERS_ROW + 1, playerHeaderMap.Id);
@@ -174,62 +174,62 @@ function generateNextPlayerId(playersSheet, notesSheet, playerHeaderMap, notesHe
 }
 
 /**
- * Ajoute la ligne dans Joueurs.
+ * Adds the row to Players.
  */
 function appendPlayerRow(sheet, headerMap, playerId, input) {
   const rowNumber = Math.max(sheet.getLastRow() + 1, PLAYER_HEADERS_ROW + 1);
 
   const row = new Array(sheet.getLastColumn()).fill("");
 
-  row[headerMap["Présent"] - 1] = false;
-  row[headerMap["Joueur"] - 1] = input.name;
-  row[headerMap["Poste1"] - 1] = input.postes[0];
-  row[headerMap["Poste2"] - 1] = input.postes[1];
-  row[headerMap["Poste3"] - 1] = input.postes[2];
-  row[headerMap["Poste4"] - 1] = input.postes[3];
+  row[headerMap["Present"] - 1] = false;
+  row[headerMap["Player"] - 1] = input.name;
+  row[headerMap["Position1"] - 1] = input.positions[0];
+  row[headerMap["Position2"] - 1] = input.positions[1];
+  row[headerMap["Position3"] - 1] = input.positions[2];
+  row[headerMap["Position4"] - 1] = input.positions[3];
   row[headerMap["Id"] - 1] = playerId;
 
   sheet
     .getRange(rowNumber, 1, 1, row.length)
     .setValues([row]);
 
-  // Joueurs.Note référence la note manuelle de Notes.
-  setPlayerNoteFormula(sheet, rowNumber, headerMap["Note"], headerMap["Id"]);
+  // Players.Rating references the manual rating in Notes.
+  setPlayerRatingFormula(sheet, rowNumber, headerMap["Rating"], headerMap["Id"]);
 
   return rowNumber;
 }
 
 
 /**
- * Écrit Joueurs.Note avec une formule indépendante de l'ordre
- * des colonnes des deux feuilles.
+ * Writes Players.Rating using a formula independent of column order in both
+ * sheets.
  */
-function setPlayerNoteFormula(playersSheet, rowNumber, noteColumn, idColumn) {
+function setPlayerRatingFormula(playersSheet, rowNumber, ratingColumn, idColumn) {
   const notesSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOTES_SHEET_NAME);
   const notesHeaders = getSheetHeaderMap(notesSheet, NOTES_HEADERS_ROW);
 
   const notesIdColumn = notesHeaders["Id"];
-  const manualNoteColumn = notesHeaders["Note manuelle (ancien format)"];
+  const manualRatingColumn = notesHeaders["Manual rating (legacy format)"];
 
   const playerIdAddress = playersSheet.getRange(rowNumber, idColumn).getA1Notation();
 
   const notesIdRange =`${NOTES_SHEET_NAME}!$${columnNumberToLetter(notesIdColumn)}
     :$${columnNumberToLetter(notesIdColumn)}`;
 
-  const manualNoteRange =`${NOTES_SHEET_NAME}!$${columnNumberToLetter(manualNoteColumn)}
-    :$${columnNumberToLetter(manualNoteColumn)}`;
+  const manualRatingRange =`${NOTES_SHEET_NAME}!$${columnNumberToLetter(manualRatingColumn)}
+    :$${columnNumberToLetter(manualRatingColumn)}`;
 
   const formula = [
-    `=INDEX(${manualNoteRange};`,
+    `=INDEX(${manualRatingRange};`,
     ` MATCH(${playerIdAddress};${notesIdRange};0))`
   ].join("");
 
   playersSheet
-    .getRange(rowNumber, noteColumn)
+    .getRange(rowNumber, ratingColumn)
     .setFormula(formula);
 }
 
-function appendNotesRow(sheet, headerMap, playerId, manualNote) {
+function appendNotesRow(sheet, headerMap, playerId, manualRating) {
   const rowNumber = Math.max(sheet.getLastRow() + 1, NOTES_HEADERS_ROW + 1);
 
   const row = new Array(sheet.getLastColumn()).fill("");
@@ -237,27 +237,26 @@ function appendNotesRow(sheet, headerMap, playerId, manualNote) {
   row[headerMap["Id"] - 1] = playerId;
 
   /*
-   * Toutes les colonnes situées entre Défenseur et Poison ++
-   * sont initialisées à false.
+   * All columns between Defender and Poison ++ are initialized to false.
    */
-  const firstBooleanColumn = headerMap["Défenseur"];
+  const firstBooleanColumn = headerMap["Defender"];
   const lastBooleanColumn = headerMap["Poison ++"];
 
   for (let column = firstBooleanColumn; column <= lastBooleanColumn; column++) {
     row[column - 1] = false;
   }
 
-  row[headerMap["Note manuelle (ancien format)"] - 1] = manualNote;
+  row[headerMap["Manual rating (legacy format)"] - 1] = manualRating;
 
   sheet
     .getRange(rowNumber, 1, 1, row.length)
     .setValues([row]);
 
-  setNotesPlayerNameFormula(sheet, rowNumber,headerMap["Joueur"]);
+  setNotesPlayerNameFormula(sheet, rowNumber,headerMap["Player"]);
 
-  setNotesAutomaticFormula(sheet, rowNumber, headerMap["Note automatique (sur 5)"], firstBooleanColumn, lastBooleanColumn);
+  setNotesAutomaticFormula(sheet, rowNumber, headerMap["Automatic rating (out of 5)"], firstBooleanColumn, lastBooleanColumn);
 
-  setNotesWeightedFormula(sheet, rowNumber, headerMap["Note automatique avec pondération"], firstBooleanColumn, lastBooleanColumn);
+  setNotesWeightedFormula(sheet, rowNumber, headerMap["Weighted automatic rating"], firstBooleanColumn, lastBooleanColumn);
 
   return rowNumber;
 }
@@ -272,9 +271,9 @@ function setNotesPlayerNameFormula(notesSheet, rowNumber, playerNameColumn) {
 
   const playersNameRange =
     `${PLAYER_SHEET_NAME}!$${
-      columnNumberToLetter(playerHeaders["Joueur"])
+      columnNumberToLetter(playerHeaders["Player"])
     }:$${
-      columnNumberToLetter(playerHeaders["Joueur"])
+      columnNumberToLetter(playerHeaders["Player"])
     }`;
 
   const playersIdRange =
@@ -358,7 +357,7 @@ function getPlayerById(playerId) {
   const notesSheet = spreadsheet.getSheetByName(NOTES_SHEET_NAME);
 
   if (!playerSheet || !notesSheet) {
-    throw new Error("Les feuilles Joueurs ou Notes sont introuvables.");
+    throw new Error("The Players or Notes sheets could not be found.");
   }
 
   const playerHeaders = getSheetHeaderMap(playerSheet, PLAYER_HEADERS_ROW);
@@ -370,25 +369,25 @@ function getPlayerById(playerId) {
   const notesRow = findPlayerRowById(notesSheet, notesHeaders["Id"], NOTES_HEADERS_ROW + 1, normalizedId);
 
   if (!playerRow || !notesRow) {
-    throw new Error(`Joueur introuvable : ${normalizedId}`);
+    throw new Error(`Player not found: ${normalizedId}`);
   }
 
   return {
     id: normalizedId,
 
-    name: String(playerSheet.getRange(playerRow, playerHeaders["Joueur"]).getValue() || ""),
+    name: String(playerSheet.getRange(playerRow, playerHeaders["Player"]).getValue() || ""),
 
-    poste1: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Poste1"]).getValue()),
-    poste2: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Poste2"]).getValue()),
-    poste3: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Poste3"]).getValue()),
-    poste4: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Poste4"]).getValue()),
+    position1: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Position1"]).getValue()),
+    position2: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Position2"]).getValue()),
+    position3: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Position3"]).getValue()),
+    position4: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Position4"]).getValue()),
 
-    manualNote: Number(notesSheet.getRange(notesRow, notesHeaders[MANUAL_NOTE_HEADER]).getValue())
+    manualRating: Number(notesSheet.getRange(notesRow, notesHeaders[MANUAL_RATING_HEADER]).getValue())
   };
 }
 
 /**
- * Updates an existing player in Joueurs and Notes.
+ * Updates an existing player in Players and Notes.
  */
 function updatePlayer(playerInput) {
   const lock = LockService.getDocumentLock();
@@ -399,7 +398,7 @@ function updatePlayer(playerInput) {
 
   try {
     if (!playerInput) {
-      throw new Error("Les informations du joueur sont manquantes.");
+      throw new Error("Player information is missing.");
     }
 
     const playerId = normalizePlayerIdForEdition(playerInput.id);
@@ -413,7 +412,7 @@ function updatePlayer(playerInput) {
     const notesSheet = spreadsheet.getSheetByName(NOTES_SHEET_NAME);
 
     if (!playerSheet || !notesSheet) {
-      throw new Error("Les feuilles Joueurs ou Notes sont introuvables.");
+      throw new Error("The Players or Notes sheets could not be found.");
     }
 
     const playerHeaders = getSheetHeaderMap(playerSheet, PLAYER_HEADERS_ROW);
@@ -425,7 +424,7 @@ function updatePlayer(playerInput) {
     const notesRow = findPlayerRowById(notesSheet, notesHeaders["Id"], NOTES_HEADERS_ROW + 1, playerId);
 
     if (!playerRow || !notesRow) {
-      throw new Error(`Joueur introuvable : ${playerId}`);
+      throw new Error(`Player not found: ${playerId}`);
     }
 
     /*
@@ -440,26 +439,26 @@ function updatePlayer(playerInput) {
       playerHeaders,
       notesHeaders,
 
-      name: playerSheet.getRange(playerRow, playerHeaders["Joueur"]).getValue(),
+      name: playerSheet.getRange(playerRow, playerHeaders["Player"]).getValue(),
 
-      postes: [
-        playerSheet.getRange(playerRow, playerHeaders["Poste1"]).getValue(),
-        playerSheet.getRange(playerRow, playerHeaders["Poste2"]).getValue(),
-        playerSheet.getRange(playerRow, playerHeaders["Poste3"]).getValue(),
-        playerSheet.getRange(playerRow, playerHeaders["Poste4"]).getValue(),
+      positions: [
+        playerSheet.getRange(playerRow, playerHeaders["Position1"]).getValue(),
+        playerSheet.getRange(playerRow, playerHeaders["Position2"]).getValue(),
+        playerSheet.getRange(playerRow, playerHeaders["Position3"]).getValue(),
+        playerSheet.getRange(playerRow, playerHeaders["Position4"]).getValue(),
       ],
 
-      manualNote: notesSheet.getRange(notesRow, notesHeaders[MANUAL_NOTE_HEADER]).getValue()
+      manualRating: notesSheet.getRange(notesRow, notesHeaders[MANUAL_RATING_HEADER]).getValue()
     };
 
-    playerSheet.getRange(playerRow, playerHeaders["Joueur"]).setValue(normalizedInput.name);
+    playerSheet.getRange(playerRow, playerHeaders["Player"]).setValue(normalizedInput.name);
 
-    ["Poste1", "Poste2", "Poste3", "Poste4"]
+    ["Position1", "Position2", "Position3", "Position4"]
       .forEach((header, index) => {
-        playerSheet.getRange(playerRow, playerHeaders[header]).setValue(normalizedInput.postes[index]);
+        playerSheet.getRange(playerRow, playerHeaders[header]).setValue(normalizedInput.positions[index]);
       });
 
-    notesSheet.getRange(notesRow, notesHeaders[MANUAL_NOTE_HEADER]).setValue(normalizedInput.manualNote);
+    notesSheet.getRange(notesRow, notesHeaders[MANUAL_RATING_HEADER]).setValue(normalizedInput.manualRating);
 
     SpreadsheetApp.flush();
 
@@ -468,7 +467,7 @@ function updatePlayer(playerInput) {
 
       player: {
         id: playerId,
-        nom: normalizedInput.name
+        name: normalizedInput.name
       }
     };
   } catch (error) {
@@ -523,7 +522,7 @@ function normalizePlayerIdForEdition(playerId) {
 
   if (!normalizedId) {
     throw new Error(
-      "L'identifiant du joueur est obligatoire."
+      "The player ID is required."
     );
   }
 
@@ -534,23 +533,23 @@ function normalizePlayerIdForEdition(playerId) {
 function restorePreviousPlayerValues(previous) {
   try {
     previous.playerSheet
-      .getRange(previous.playerRow, previous.playerHeaders["Joueur"])
+      .getRange(previous.playerRow, previous.playerHeaders["Player"])
       .setValue(previous.name);
 
     [
-      "Poste1",
-      "Poste2",
-      "Poste3",
-      "Poste4"
+      "Position1",
+      "Position2",
+      "Position3",
+      "Position4"
     ].forEach((header, index) => {
       previous.playerSheet
         .getRange(previous.playerRow, previous.playerHeaders[header])
-        .setValue(previous.postes[index]);
+        .setValue(previous.positions[index]);
     });
 
     previous.notesSheet
-      .getRange(previous.notesRow, previous.notesHeaders[MANUAL_NOTE_HEADER])
-      .setValue(previous.manualNote);
+      .getRange(previous.notesRow, previous.notesHeaders[MANUAL_RATING_HEADER])
+      .setValue(previous.manualRating);
       
   } catch (rollbackError) {
     console.error(

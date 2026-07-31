@@ -1,56 +1,56 @@
-function genererEquipes(selectedIds) {
+function generateTeams(selectedIds) {
   Logger.log("selectedIds : " + selectedIds);
   const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  const data = getSheetData("Joueurs", 0);
-  const joueurs = readPlayers(selectedIds, data);
+  const data = getSheetData("Players", 0);
+  const players = readPlayers(selectedIds, data);
 
-  const count = joueurs.length;
+  const count = players.length;
 
   if (count < 7) {
     return {
-      error: "Pas assez de joueurs sélectionnés"
+      error: "Not enough players selected"
     };
   }
     
-  let sheetEquipes = ss.getSheetByName("Equipes");
-  if (sheetEquipes) ss.deleteSheet(sheetEquipes);
-  sheetEquipes = ss.insertSheet("Equipes");
+  let teamsSheet = ss.getSheetByName("Teams");
+  if (teamsSheet) ss.deleteSheet(teamsSheet);
+  teamsSheet = ss.insertSheet("Teams");
 
    // ===== STRUCTURE =====
-  const nbEquipesCompletes = Math.floor(count / 7);
-  const reste = count % 7;
+  const fullTeamCount = Math.floor(count / 7);
+  const remainder = count % 7;
 
-  let withEquipePartielle = false;
-  let nbEquipes = nbEquipesCompletes;
-  let nbRemplacants = 0;
+  let withPartialTeam = false;
+  let teamCount = fullTeamCount;
+  let substituteCount = 0;
 
-  if (reste <= nbEquipesCompletes) {
-    nbRemplacants = reste;
+  if (remainder <= fullTeamCount) {
+    substituteCount = remainder;
   } else {
-    withEquipePartielle = true;
-    nbEquipes = nbEquipesCompletes + 1;
+    withPartialTeam = true;
+    teamCount = fullTeamCount + 1;
   }
 
-  Logger.log("nbEquipes : " + nbEquipes + " | nbEquipesCompletes : " + nbEquipesCompletes);
+  Logger.log("teamCount: " + teamCount + " | fullTeamCount: " + fullTeamCount);
   // =====
   
-  // ===== MEDIANE =====
-  const notes = joueurs.map(j => j.note).sort((a,b)=>a-b);
-  const mid = Math.floor(notes.length / 2);
-  const median = notes.length % 2 === 0
-    ? (notes[mid-1] + notes[mid]) / 2
-    : notes[mid];
+  // ===== MEDIAN =====
+  const ratings = players.map(player => player.rating).sort((a,b)=>a-b);
+  const mid = Math.floor(ratings.length / 2);
+  const median = ratings.length % 2 === 0
+    ? (ratings[mid-1] + ratings[mid]) / 2
+    : ratings[mid];
   // =====
 
-  const coeffPoste = {
-    0: 1.0,   // Poste1
-    1: 0.9,   // Poste2
-    2: 0.8,   // Poste3
-    3: 0.7    // Poste4
+  const positionCoefficients = {
+    0: 1.0,   // Position1
+    1: 0.9,   // Position2
+    2: 0.8,   // Position3
+    3: 0.7    // Position4
   };
 
-  const coeffHorsPoste = 0.6;
+  const outOfPositionCoefficient = 0.6;
 
   let bestDiff = 999999;
   let bestTeams = null;
@@ -59,41 +59,41 @@ function genererEquipes(selectedIds) {
 
   for (let sim = 0; sim < 300; sim++) {
 
-    const poolOfPlayers = getPoolOfPlayers(joueurs, withEquipePartielle);
+    const poolOfPlayers = getPoolOfPlayers(players, withPartialTeam);
 
-    const equipes = [];
-    const teamScore = new Array(nbEquipes).fill(0);
-    const teamRawScore = new Array(nbEquipes).fill(0);
-    const teamCount = new Array(nbEquipes).fill(0);
+    const teams = [];
+    const teamScore = new Array(teamCount).fill(0);
+    const teamRawScore = new Array(teamCount).fill(0);
+    const playerCountByTeam = new Array(teamCount).fill(0);
 
-    for (let i = 0; i < nbEquipes; i++) {
-      equipes[i] = [];
+    for (let i = 0; i < teamCount; i++) {
+      teams[i] = [];
     }
 
-    const postesRestants = [];
-    for (let i = 0; i < nbEquipes; i++) {
-      postesRestants[i] = [1,2,1,2,1]; // G DEF MIL AIL BUT
+    const remainingPositions = [];
+    for (let i = 0; i < teamCount; i++) {
+      remainingPositions[i] = [1,2,1,2,1]; // G DEF MIL AIL BUT
     }
 
-    const totalJoueursARepartir = withEquipePartielle ? nbEquipesCompletes * 7 : poolOfPlayers.length;
+    const playersToDistributeCount = withPartialTeam ? fullTeamCount * 7 : poolOfPlayers.length;
 
     let index = 0;
-    // ===== EQUIPES COMPLETES =====
-    while (index < totalJoueursARepartir) {
+    // ===== FULL TEAMS =====
+    while (index < playersToDistributeCount) {
 
       const player = poolOfPlayers[index];
-      const teamIndex = getTeamIndexModuloDistribution(index, nbEquipesCompletes);
+      const teamIndex = getTeamIndexModuloDistribution(index, fullTeamCount);
 
       assignPlayerToTeam(
         player,
         teamIndex,
-        equipes,
+        teams,
         teamScore,
         teamRawScore,
-        teamCount,
-        postesRestants,
-        coeffPoste,
-        coeffHorsPoste
+        playerCountByTeam,
+        remainingPositions,
+        positionCoefficients,
+        outOfPositionCoefficient
       );
 
       index++;
@@ -101,9 +101,9 @@ function genererEquipes(selectedIds) {
     // =====
 
 
-    // ===== EQUIPE PARTIELLE =====
-    if (withEquipePartielle) {
-      var lastTeamIndex = nbEquipes - 1;
+    // ===== PARTIAL TEAM =====
+    if (withPartialTeam) {
+      var lastTeamIndex = teamCount - 1;
 
       while (index < poolOfPlayers.length) {
 
@@ -112,50 +112,50 @@ function genererEquipes(selectedIds) {
         assignPlayerToTeam(
           player,
           lastTeamIndex,
-          equipes,
+          teams,
           teamScore,
           teamRawScore,
-          teamCount,
-          postesRestants,
-          coeffPoste,
-          coeffHorsPoste
+          playerCountByTeam,
+          remainingPositions,
+          positionCoefficients,
+          outOfPositionCoefficient
         );
       }
 
-      // Complétion virtuelle
-      while (teamCount[lastTeamIndex] < 7) {
+      // Virtual completion
+      while (playerCountByTeam[lastTeamIndex] < 7) {
         teamScore[lastTeamIndex] += median;
         teamRawScore[lastTeamIndex] += median;
-        teamCount[lastTeamIndex]++;
+        playerCountByTeam[lastTeamIndex]++;
       }
     }
     // =====
 
-    const averagesScores = teamScore.map((s,i)=> s / teamCount[i]);
-    // utiliser un des deux selon les résultats observés
+    const averagesScores = teamScore.map((score,i)=> score / playerCountByTeam[i]);
+    // Use either one depending on the observed results.
     const stdDev = getStandardDeviation(averagesScores);
     // const stdDev = getStandardDeviation(teamScore);
 
     if (stdDev < bestDiff) {
       bestDiff = stdDev;
-      bestTeams = JSON.parse(JSON.stringify(equipes));
+      bestTeams = JSON.parse(JSON.stringify(teams));
 
-      bestRawAverages = teamRawScore.map((s,i)=> s / teamCount[i]);
-      bestAdjAverages = teamScore.map((s,i)=> s / teamCount[i]);
+      bestRawAverages = teamRawScore.map((score,i)=> score / playerCountByTeam[i]);
+      bestAdjAverages = teamScore.map((score,i)=> score / playerCountByTeam[i]);
     }
   }
 
-  // Affichage
-  sheetEquipes.getRange(1,1).setValue("Equipes optimisées");
+  // Display
+  teamsSheet.getRange(1,1).setValue("Optimized teams");
 
   for (let i = 0; i < bestTeams.length; i++) {
-    sheetEquipes.getRange(1, i+1).setValue("Equipe " + (i+1));
+    teamsSheet.getRange(1, i+1).setValue("Team " + (i+1));
     for (let r = 0; r < bestTeams[i].length; r++) {
-      sheetEquipes.getRange(r+2, i+1).setValue(bestTeams[i][r]);
+      teamsSheet.getRange(r+2, i+1).setValue(bestTeams[i][r]);
     }
   }
 
-  // SpreadsheetApp.getUi().alert("Equipes générées !");
+  // SpreadsheetApp.getUi().alert("Teams generated!");
   Logger.log("best teams :" + bestTeams);
   Logger.log("best raw average :" + bestRawAverages);
   Logger.log("best adj average :" + bestAdjAverages);
@@ -169,71 +169,71 @@ function genererEquipes(selectedIds) {
 function assignPlayerToTeam(
   player,
   teamIndex,
-  equipes,
+  teams,
   teamScore,
   teamRawScore,
-  teamCount,
-  postesRestants,
-  coeffPoste,
-  coeffHorsPoste
+  playerCountByTeam,
+  remainingPositions,
+  positionCoefficients,
+  outOfPositionCoefficient
 ) {
 
-  let noteAdj = player.note * coeffHorsPoste;
-  let posteChoisi = "Hors poste";
+  let adjustedRating = player.rating * outOfPositionCoefficient;
+  let selectedPosition = "Out of position";
 
-  if (teamCount[teamIndex] < 7) {
+  if (playerCountByTeam[teamIndex] < 7) {
 
-    for (let posteCol = 0; posteCol < 4; posteCol++) {
+    for (let positionColumn = 0; positionColumn < 4; positionColumn++) {
 
-      // on s'arrête si le joueur n'a plus de poste jouable
-      if (!player.postes[posteCol]) continue;
+      // Skip the level if the player has no playable position there.
+      if (!player.positions[positionColumn]) continue;
 
-      const postesPossibles = player.postes[posteCol]
+      const possiblePositions = player.positions[positionColumn]
         .toString()
         .split(",")
         .map(p => p.trim());
 
-      for (let postePossible of postesPossibles) {
+      for (let possiblePosition of possiblePositions) {
 
-        const posteIndex = getPosteIndex(postePossible);
+        const positionIndex = getPositionIndex(possiblePosition);
 
-        if (posteIndex !== -1 && postesRestants[teamIndex][posteIndex] > 0) {
+        if (positionIndex !== -1 && remainingPositions[teamIndex][positionIndex] > 0) {
 
-          postesRestants[teamIndex][posteIndex]--;
-          noteAdj = player.note * coeffPoste[posteCol];
+          remainingPositions[teamIndex][positionIndex]--;
+          adjustedRating = player.rating * positionCoefficients[positionColumn];
 
-          // if (posteCol === 0) noteAdj += 0.3;
+          // if (positionColumn === 0) adjustedRating += 0.3;
 
-          posteChoisi = postePossible;
+          selectedPosition = possiblePosition;
           break;
         }
       }
 
-      if (posteChoisi !== "Hors poste") break;
+      if (selectedPosition !== "Out of position") break;
     }
   }
 
-  if (teamCount[teamIndex] >= 6 && postesRestants[teamIndex][0] !== 0) { // si le poste de gardien n'est pas déjà occupé
-    // le joueur en plus ne sera pas Hors Poste
-    noteAdj = player.note;
-    posteChoisi = (teamCount[teamIndex] + 1)+"eme";
+  if (playerCountByTeam[teamIndex] >= 6 && remainingPositions[teamIndex][0] !== 0) { // If the goalkeeper position is not already occupied.
+    // The extra player will not be marked as out of position.
+    adjustedRating = player.rating;
+    selectedPosition = (playerCountByTeam[teamIndex] + 1) + "th";
   }
 
-  teamScore[teamIndex] += noteAdj;
-  teamRawScore[teamIndex] += player.note;
-  teamCount[teamIndex]++;
+  teamScore[teamIndex] += adjustedRating;
+  teamRawScore[teamIndex] += player.rating;
+  playerCountByTeam[teamIndex]++;
 
-  equipes[teamIndex].push({
+  teams[teamIndex].push({
     id: player.id,
     name: player.name,
-    poste: posteChoisi,
-    noteRaw: player.note,
-    noteAdj: noteAdj
+    position: selectedPosition,
+    rawRating: player.rating,
+    adjustedRating: adjustedRating
   });
 }
 
-function getPosteIndex(poste) {
-  switch(poste) {
+function getPositionIndex(position) {
+  switch(position) {
     case "G"  : return 0;
     case "DEF": return 1;
     case "MIL": return 2;

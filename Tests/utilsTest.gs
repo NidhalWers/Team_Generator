@@ -1,80 +1,80 @@
 /**
- * Point d'entrée de la suite de tests de utils.gs.
+ * Entry point for the test suite for utils.gs.
  *
- * À exécuter depuis l'éditeur Apps Script.
+ * Run from the Apps Script editor.
  */
 function runUtilsTests() {
   return runTestSuite("utils.gs", [
     {
-      name: "normalizeString convertit un nombre en texte",
+      name: "normalizeString converts a number to text",
       test: testnormalizeStringWithNumber
     },
     {
-      name: "normalizeString retire les espaces",
+      name: "normalizeString trims whitespace",
       test: testnormalizeStringTrimsValue
     },
     {
-      name: "normalizeString transforme null en chaîne vide",
+      name: "normalizeString turns null into an empty string",
       test: testnormalizeStringWithNull
     },
     {
-      name: "getStandardDeviation calcule l'écart-type d'une série",
+      name: "getStandardDeviation calculates the standard deviation of a series",
       test: testGetStandardDeviation
     },
     {
-      name: "getStandardDeviation retourne 0 pour des valeurs identiques",
+      name: "getStandardDeviation returns 0 for identical values",
       test: testGetStandardDeviationWithIdenticalValues
     },
     {
-      name: "getStandardDeviation retourne 0 pour une seule valeur",
+      name: "getStandardDeviation returns 0 for a single value",
       test: testGetStandardDeviationWithSingleValue
     },
     {
-      name: "shuffleArray retourne le même tableau",
+      name: "shuffleArray returns the same array",
       test: testShuffleArrayReturnsSameArray
     },
     {
-      name: "shuffleArray conserve tous les éléments",
+      name: "shuffleArray preserves all elements",
       test: testShuffleArrayPreservesElements
     },
     {
-      name: "shuffleArray peut être testé avec un hasard déterministe",
+      name: "shuffleArray can be tested with deterministic randomness",
       test: testShuffleArrayWithDeterministicRandom
     },
     {
-      name: "getSheetData utilise la bonne ligne d'en-têtes",
+      name: "getSheetData uses the correct header row",
       test: testGetSheetData
     },
     {
-      name: "getSheetData ignore les colonnes sans en-tête",
+      name: "getSheetData ignores columns without a header",
       test: testGetSheetDataIgnoresEmptyHeaders
     },
     {
-      name: "isHalfStep accepte les paliers de 0,5",
+      name: "isHalfStep accepts 0.5 increments",
       test: testIsHalfStepAcceptsHalfSteps
     },
     {
-      name: "isHalfStep refuse les valeurs hors palier",
+      name: "isHalfStep rejects values outside the increment",
       test: testIsHalfStepRejectsInvalidSteps
     },
     {
-      name: "getDuplicatedValues retourne un tableau vide sans doublon",
+      name: "getDuplicatedValues returns an empty array without duplicates",
       test: testGetDuplicatedValuesWithoutDuplicates
     },
     {
-      name: "getDuplicatedValues retourne les valeurs dupliquées",
+      name: "getDuplicatedValues returns duplicated values",
       test: testGetDuplicatedValues
     },
     {
-      name: "getDuplicatedValues ne retourne chaque doublon qu'une fois",
+      name: "getDuplicatedValues returns each duplicate only once",
       test: testGetDuplicatedValuesOnlyOnce
     },
     {
-      name: "columnNumberToLetter convertit les colonnes simples",
+      name: "columnNumberToLetter converts single-letter columns",
       test: testColumnNumberToLetterSingleLetters
     },
     {
-      name: "columnNumberToLetter convertit les colonnes multiples",
+      name: "columnNumberToLetter converts multi-letter columns",
       test: testColumnNumberToLetterMultipleLetters
     }
   ]);
@@ -111,10 +111,10 @@ function testnormalizeStringWithNull() {
 
 function testGetStandardDeviation() {
   /*
-   * Série classique dont :
-   * - la moyenne vaut 5 ;
-   * - la variance de population vaut 4 ;
-   * - l'écart-type vaut 2.
+   * Standard series where:
+   * - the mean is 5;
+   * - the population variance is 4;
+   * - the standard deviation is 2.
    */
   const values = [2, 4, 4, 4, 5, 5, 7, 9];
 
@@ -149,7 +149,7 @@ function testShuffleArrayReturnsSameArray() {
 
   assertTrue(
     result === original,
-    "shuffleArray doit modifier et retourner le tableau reçu."
+    "shuffleArray must modify and return the input array."
   );
 }
 
@@ -163,14 +163,14 @@ function testShuffleArrayPreservesElements() {
   assertDeepEquals(
     [...original].sort(),
     [...result].sort(),
-    "Le mélange ne doit ni ajouter ni supprimer d'élément."
+    "Shuffling must neither add nor remove elements."
   );
 }
 
 
 function testShuffleArrayWithDeterministicRandom() {
   /*
-   * Pour [A, B, C] :
+   * For [A, B, C]:
    *
    * i = 2, random = 0
    * j = floor(0 × 3) = 0
@@ -206,15 +206,15 @@ function testGetSheetData() {
     sheet
       .getRange(1, 1, 4, 3)
       .setValues([
-        ["Information ignorée", "", ""],
-        ["Id", "Joueur", "Note"],
+        ["Ignored information", "", ""],
+        ["Id", "Player", "Rating"],
         ["first_id", "Alice", 4],
         ["second_id", "Bob", 3.5]
       ]);
 
     /*
-     * headerIndex est indexé à partir de zéro.
-     * La ligne 2 correspond donc à headerIndex = 1.
+     * headerIndex is zero-based.
+     * Row 2 therefore corresponds to headerIndex = 1.
      */
     const result = getSheetData(sheetName, 1);
 
@@ -222,13 +222,13 @@ function testGetSheetData() {
       [
         {
           Id: "first_id",
-          Joueur: "Alice",
-          Note: 4
+          Player: "Alice",
+          Rating: 4
         },
         {
           Id: "second_id",
-          Joueur: "Bob",
-          Note: 3.5
+          Player: "Bob",
+          Rating: 3.5
         }
       ],
       result
@@ -249,8 +249,8 @@ function testGetSheetDataIgnoresEmptyHeaders() {
     sheet
       .getRange(1, 1, 2, 3)
       .setValues([
-        ["Id", "", "Joueur"],
-        ["id_whatever", "Valeur à ignorer", "Alice"]
+        ["Id", "", "Player"],
+        ["id_whatever", "Value to ignore", "Alice"]
       ]);
 
     const result = getSheetData(sheetName, 0);
@@ -259,7 +259,7 @@ function testGetSheetDataIgnoresEmptyHeaders() {
       [
         {
           Id: "id_whatever",
-          Joueur: "Alice"
+          Player: "Alice"
         }
       ],
       result
@@ -271,7 +271,7 @@ function testGetSheetDataIgnoresEmptyHeaders() {
 
 
 // ======================================================
-// Helpers de tests
+// Test helpers
 // ======================================================
 
 function createTemporaryTestSheetName() {
@@ -299,7 +299,7 @@ function testIsHalfStepAcceptsHalfSteps() {
   validValues.forEach(value => {
     assertTrue(
       isHalfStep(value),
-      `${value} doit être reconnu comme un palier de 0,5.`
+      `${value} must be recognized as a 0.5 increment.`
     );
   });
 }
@@ -318,7 +318,7 @@ function testIsHalfStepRejectsInvalidSteps() {
   invalidValues.forEach(value => {
     assertTrue(
       !isHalfStep(value),
-      `${value} ne doit pas être reconnu comme un palier de 0,5.`
+      `${value} must not be recognized as a 0.5 increment.`
     );
   });
 }
@@ -374,7 +374,7 @@ function testGetDuplicatedValuesOnlyOnce() {
   assertDeepEquals(
     ["DEF"],
     result,
-    "Un doublon doit être retourné une seule fois, même avec trois occurrences."
+    "A duplicate must be returned only once, even with three occurrences."
   );
 }
 
@@ -404,7 +404,7 @@ function testColumnNumberToLetterMultipleLetters() {
     assertEquals(
       testCase.expected,
       columnNumberToLetter(testCase.column),
-      `Conversion incorrecte pour la colonne ${testCase.column}.`
+      `Incorrect conversion for column ${testCase.column}.`
     );
   });
 }

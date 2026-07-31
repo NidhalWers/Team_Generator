@@ -1,57 +1,57 @@
-function getPoolOfPlayers(joueurs, withEquipePartielle){
+function getPoolOfPlayers(players, withPartialTeam){
 
-  /*if (withEquipePartielle){
-    // lorsqu'il y a une équipe partielle, on ne classe pas les joueurs
-    // afin d'éviter que les meilleurs joueurs se trouvent tous dans l'équipe partielle
-    // donc il n'y aura pas d'optimisation de poste dans ce cas
-    return shuffleArray([...joueurs]);
+  /*if (withPartialTeam){
+    // When there is a partial team, do not rank players
+    // to prevent all the best players from ending up on the partial team
+    // so positions will not be optimized in that case
+    return shuffleArray([...players]);
   }*/
 
-  const singlePoste = [];
-  const multiPoste = [];
+  const singlePosition = [];
+  const multiplePositions = [];
 
-  joueurs.forEach(player => {
+  players.forEach(player => {
 
-    const versatility = countUniquePostes(player);
+    const versatility = countUniquePositions(player);
     if (versatility === 1) {
-      singlePoste.push(player);
+      singlePosition.push(player);
     } else {
-      multiPoste.push(player);
+      multiplePositions.push(player);
     }
 
   });
 
-  shuffleArray(singlePoste);
-  shuffleArray(multiPoste);
+  shuffleArray(singlePosition);
+  shuffleArray(multiplePositions);
 
-  return [...singlePoste, ...multiPoste];
+  return [...singlePosition, ...multiplePositions];
 }
 
-function countUniquePostes(player) {
+function countUniquePositions(player) {
   const set = new Set();
 
   for (let i = 0; i < 4; i++) {
-    if (!player.postes[i]) continue;
+    if (!player.positions[i]) continue;
 
-    const postes = player.postes[i]
+    const positions = player.positions[i]
       .toString()
       .split(",")
       .map(p => p.trim());
 
-    postes.forEach(p => set.add(p));
+    positions.forEach(position => set.add(position));
   }
 
   return set.size;
 }
 
-function getJoueurs() {
-  const data = getSheetData("Joueurs", 0);
+function getPlayers() {
+  const data = getSheetData("Players", 0);
 
   return data
-    .filter(row => row.Joueur && normalizeString(row.Id) !== "")
+    .filter(row => row.Player && normalizeString(row.Id) !== "")
     .map(row => ({
       id: normalizeString(row.Id),
-      nom: row.Joueur
+      name: row.Player
     }));
 }
 
@@ -64,13 +64,13 @@ function readPlayers(selectedIds, playersData){
     .filter(row => selectedIdSet.has(normalizeString(row.Id)))
     .map(row => ({
       id: normalizeString(row.Id),
-      name: row.Joueur,
-      note: Number(row.Note),
-      postes: [
-        row.Poste1,
-        row.Poste2,
-        row.Poste3,
-        row.Poste4
+      name: row.Player,
+      rating: Number(row.Rating),
+      positions: [
+        row.Position1,
+        row.Position2,
+        row.Position3,
+        row.Position4
       ]
     }));
 
@@ -82,19 +82,19 @@ function readPlayers(selectedIds, playersData){
 function validatePlayerData(player) {
   if (!player.id) {
     throw new Error(
-      `Un joueur ne possède pas d'Id : "${player.name}".`
+      `A player has no Id: "${player.name}".`
     );
   }
 
   if (!player.name) {
     throw new Error(
-      `Le joueur d'Id "${player.id}" ne possède pas de nom.`
+      `The player with Id "${player.id}" has no name.`
     );
   }
 
-  if (!Number.isFinite(player.note)) {
+  if (!Number.isFinite(player.rating)) {
     throw new Error(
-      `La note du joueur "${player.name}" est invalide.`
+      `The rating for player "${player.name}" is invalid.`
     );
   }
 }

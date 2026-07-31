@@ -1,105 +1,105 @@
 /**
- * Point d'entrée des tests de player.gs.
+ * Entry point for the tests for player.gs.
  *
- * À exécuter depuis l'éditeur Apps Script.
+ * Run from the Apps Script editor.
  */
 function runPlayerTests() {
   return runTestSuite("player.gs", [
     {
-      name: "countUniquePostes retourne 0 sans poste",
-      test: testPlayerCountUniquePostesWithoutPoste
+      name: "countUniquePositions returns 0 with no position",
+      test: testPlayerCountUniquePositionsWithoutPosition
     },
     {
-      name: "countUniquePostes compte un poste unique",
-      test: testPlayerCountUniquePostesWithSinglePoste
+      name: "countUniquePositions counts one unique position",
+      test: testPlayerCountUniquePositionsWithSinglePosition
     },
     {
-      name: "countUniquePostes lit plusieurs postes dans une cellule",
-      test: testPlayerCountUniquePostesInSameColumn
+      name: "countUniquePositions reads multiple positions from one cell",
+      test: testPlayerCountUniquePositionsInSameColumn
     },
     {
-      name: "countUniquePostes agrège les quatre niveaux de poste",
-      test: testPlayerCountUniquePostesAcrossColumns
+      name: "countUniquePositions combines all four position levels",
+      test: testPlayerCountUniquePositionsAcrossColumns
     },
     {
-      name: "countUniquePostes ne compte pas deux fois le même poste",
-      test: testPlayerCountUniquePostesIgnoresDuplicates
+      name: "countUniquePositions does not count the same position twice",
+      test: testPlayerCountUniquePositionsIgnoresDuplicates
     },
     {
-      name: "countUniquePostes nettoie les espaces autour des postes",
-      test: testPlayerCountUniquePostesTrimsValues
+      name: "countUniquePositions trims whitespace around positions",
+      test: testPlayerCountUniquePositionsTrimsValues
     },
     {
-      name: "getPoolOfPlayers place les joueurs mono-poste en premier",
-      test: testPlayerPoolPrioritizesSinglePostePlayers
+      name: "getPoolOfPlayers places single-position players first",
+      test: testPlayerPoolPrioritizesSinglePositionPlayers
     },
     {
-      name: "getPoolOfPlayers conserve tous les joueurs",
+      name: "getPoolOfPlayers preserves all players",
       test: testPlayerPoolPreservesAllPlayers
     },
     {
-      name: "getPoolOfPlayers ne modifie pas le tableau source",
+      name: "getPoolOfPlayers does not mutate the source array",
       test: testPlayerPoolDoesNotMutateSourceArray
     },
     {
-      name: "getPoolOfPlayers retourne un tableau plat",
+      name: "getPoolOfPlayers returns a flat array",
       test: testPlayerPoolReturnsFlatArray
     },
     {
-      name: "getPoolOfPlayers gère un tableau vide",
+      name: "getPoolOfPlayers handles an empty array",
       test: testPlayerPoolWithEmptyArray
     },
     {
-      name: "getPoolOfPlayers considère comme mono-poste un joueur ayant le même poste plusieurs fois",
-      test: testPlayerPoolWithDuplicatedSinglePoste
+      name: "getPoolOfPlayers treats a player with the same position multiple times as single-position",
+      test: testPlayerPoolWithDuplicatedSinglePosition
     }
   ]);
 }
 
 
 // ======================================================
-// countUniquePostes
+// countUniquePositions
 // ======================================================
 
-function testPlayerCountUniquePostesWithoutPoste() {
+function testPlayerCountUniquePositionsWithoutPosition() {
   const player = createPlayerTestData(
-    "Sans poste",
+    "No position",
     ["", "", "", ""]
   );
 
-  const result = countUniquePostes(player);
+  const result = countUniquePositions(player);
 
   assertEquals(0, result);
 }
 
 
-function testPlayerCountUniquePostesWithSinglePoste() {
+function testPlayerCountUniquePositionsWithSinglePosition() {
   const player = createPlayerTestData(
-    "Gardien",
+    "Goalkeeper",
     ["G", "", "", ""]
   );
 
-  const result = countUniquePostes(player);
+  const result = countUniquePositions(player);
 
   assertEquals(1, result);
 }
 
 
-function testPlayerCountUniquePostesInSameColumn() {
+function testPlayerCountUniquePositionsInSameColumn() {
   const player = createPlayerTestData(
     "Polyvalent",
     ["DEF,MIL,AIL", "", "", ""]
   );
 
-  const result = countUniquePostes(player);
+  const result = countUniquePositions(player);
 
   assertEquals(3, result);
 }
 
 
-function testPlayerCountUniquePostesAcrossColumns() {
+function testPlayerCountUniquePositionsAcrossColumns() {
   const player = createPlayerTestData(
-    "Très polyvalent",
+    "Highly versatile",
     [
       "DEF",
       "MIL,AIL",
@@ -108,15 +108,15 @@ function testPlayerCountUniquePostesAcrossColumns() {
     ]
   );
 
-  const result = countUniquePostes(player);
+  const result = countUniquePositions(player);
 
   assertEquals(5, result);
 }
 
 
-function testPlayerCountUniquePostesIgnoresDuplicates() {
+function testPlayerCountUniquePositionsIgnoresDuplicates() {
   const player = createPlayerTestData(
-    "Défenseur",
+    "Defender",
     [
       "DEF",
       "DEF",
@@ -125,17 +125,17 @@ function testPlayerCountUniquePostesIgnoresDuplicates() {
     ]
   );
 
-  const result = countUniquePostes(player);
+  const result = countUniquePositions(player);
 
   assertEquals(
     2,
     result,
-    "Seuls DEF et MIL doivent être comptabilisés."
+    "Only DEF and MIL should be counted."
   );
 }
 
 
-function testPlayerCountUniquePostesTrimsValues() {
+function testPlayerCountUniquePositionsTrimsValues() {
   const player = createPlayerTestData(
     "Espaces",
     [
@@ -146,7 +146,7 @@ function testPlayerCountUniquePostesTrimsValues() {
     ]
   );
 
-  const result = countUniquePostes(player);
+  const result = countUniquePositions(player);
 
   assertEquals(3, result);
 }
@@ -156,7 +156,7 @@ function testPlayerCountUniquePostesTrimsValues() {
 // getPoolOfPlayers
 // ======================================================
 
-function testPlayerPoolPrioritizesSinglePostePlayers() {
+function testPlayerPoolPrioritizesSinglePositionPlayers() {
   const players = [
     createPlayerTestData(
       "Multi 1",
@@ -183,30 +183,30 @@ function testPlayerPoolPrioritizesSinglePostePlayers() {
   const result = getPoolOfPlayers(players, false);
 
   /*
-   * L'ordre interne des deux groupes est aléatoire.
-   * On vérifie uniquement que tous les mono-postes arrivent avant
-   * les joueurs multi-postes.
+   * The internal order of both groups is random.
+   * Only verify that all single-position players come before
+   * multiple-position players.
    */
   assertEquals(
     1,
-    countUniquePostes(result[0]),
-    "Le premier joueur doit être mono-poste."
+    countUniquePositions(result[0]),
+    "The first player must be single-position."
   );
 
   assertEquals(
     1,
-    countUniquePostes(result[1]),
-    "Le deuxième joueur doit être mono-poste."
+    countUniquePositions(result[1]),
+    "The second player must be single-position."
   );
 
   assertTrue(
-    countUniquePostes(result[2]) > 1,
-    "Le troisième joueur doit être multi-postes."
+    countUniquePositions(result[2]) > 1,
+    "The third player must have multiple positions."
   );
 
   assertTrue(
-    countUniquePostes(result[3]) > 1,
-    "Le quatrième joueur doit être multi-postes."
+    countUniquePositions(result[3]) > 1,
+    "The fourth player must have multiple positions."
   );
 }
 
@@ -214,22 +214,22 @@ function testPlayerPoolPrioritizesSinglePostePlayers() {
 function testPlayerPoolPreservesAllPlayers() {
   const players = [
     createPlayerTestData(
-      "Joueur A",
+      "Player A",
       ["DEF", "", "", ""],
       "A"
     ),
     createPlayerTestData(
-      "Joueur B",
+      "Player B",
       ["MIL,AIL", "", "", ""],
       "B"
     ),
     createPlayerTestData(
-      "Joueur C",
+      "Player C",
       ["BUT", "", "", ""],
       "C"
     ),
     createPlayerTestData(
-      "Joueur D",
+      "Player D",
       ["DEF", "MIL", "", ""],
       "D"
     )
@@ -248,13 +248,13 @@ function testPlayerPoolPreservesAllPlayers() {
   assertEquals(
     players.length,
     result.length,
-    "Le nombre de joueurs doit être conservé."
+    "The player count must be preserved."
   );
 
   assertDeepEquals(
     originalIds,
     resultIds,
-    "Aucun joueur ne doit être ajouté, supprimé ou dupliqué."
+    "No player may be added, removed, or duplicated."
   );
 }
 
@@ -290,12 +290,12 @@ function testPlayerPoolDoesNotMutateSourceArray() {
   assertDeepEquals(
     originalOrder,
     players.map(player => player.id),
-    "Le tableau reçu ne doit pas être réordonné."
+    "The input array must not be reordered."
   );
 
   assertTrue(
     result !== players,
-    "La fonction doit retourner un nouveau tableau."
+    "The function must return a new array."
   );
 }
 
@@ -321,7 +321,7 @@ function testPlayerPoolReturnsFlatArray() {
   result.forEach(player => {
     assertTrue(
       !Array.isArray(player),
-      "Le résultat doit contenir directement des joueurs, pas des sous-tableaux."
+      "The result must contain players directly, not nested arrays."
     );
   });
 }
@@ -334,9 +334,9 @@ function testPlayerPoolWithEmptyArray() {
 }
 
 
-function testPlayerPoolWithDuplicatedSinglePoste() {
-  const duplicatedSinglePoste = createPlayerTestData(
-    "Défenseur uniquement",
+function testPlayerPoolWithDuplicatedSinglePosition() {
+  const duplicatedSinglePosition = createPlayerTestData(
+    "Defender only",
     [
       "DEF",
       "DEF",
@@ -346,7 +346,7 @@ function testPlayerPoolWithDuplicatedSinglePoste() {
     "duplicated-single"
   );
 
-  const multiPoste = createPlayerTestData(
+  const multiPosition = createPlayerTestData(
     "Polyvalent",
     [
       "DEF,MIL",
@@ -358,32 +358,32 @@ function testPlayerPoolWithDuplicatedSinglePoste() {
   );
 
   const result = getPoolOfPlayers(
-    [multiPoste, duplicatedSinglePoste],
+    [multiPosition, duplicatedSinglePosition],
     false
   );
 
   assertEquals(
     "duplicated-single",
     result[0].id,
-    "Un joueur ayant DEF dans plusieurs niveaux reste un joueur mono-poste."
+    "A player with DEF in multiple levels remains a single-position player."
   );
 }
 
 
 // ======================================================
-// Helpers de tests
+// Test helpers
 // ======================================================
 
 function createPlayerTestData(
   name,
-  postes,
+  positions,
   id = "test-player",
-  note = 3.5
+  rating = 3.5
 ) {
   return {
     id: id,
     name: name,
-    note: note,
-    postes: postes
+    rating: rating,
+    positions: positions
   };
 }
