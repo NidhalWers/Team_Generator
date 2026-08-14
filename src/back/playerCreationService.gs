@@ -42,16 +42,16 @@ function addPlayer(playerInput, adminToken) {
     lock.waitLock(10000);
 
     const admin = isAdminSession(adminToken);
-    const requestedRatingChange = hasManualNote_(playerInput);
+    const requestedRatingChange = hasManualRating_(playerInput);
 
     if (requestedRatingChange && !admin) {
-      throw new Error("Session administrateur invalide ou expirée.");
+      throw new Error("An administrator session is required to set a rating.");
     }
 
     const inputToValidate = {
       ...playerInput,
 
-      manualNote: admin ? playerInput.manualNote : 2.5
+      manualRating: admin ? playerInput.manualRating : 2.5
     };
 
     const normalizedInput = validateAndNormalizePlayerInput(inputToValidate);
@@ -418,10 +418,10 @@ function updatePlayer(playerInput, adminToken) {
     }
 
     const admin = isAdminSession(adminToken);
-    const requestedRatingChange = hasManualNote_(playerInput);
+    const requestedRatingChange = hasManualRating_(playerInput);
 
     if (requestedRatingChange && !admin) {
-      throw new Error("Session administrateur invalide ou expirée.");
+      throw new Error("An administrator session is required to set a rating.");
     }
 
     const playerId = normalizePlayerIdForEdition(playerInput.id);
@@ -429,9 +429,9 @@ function updatePlayer(playerInput, adminToken) {
     const inputToValidate = {
       ...playerInput,
 
-      manualNote:
+      manualRating:
         admin
-          ? playerInput.manualNote
+          ? playerInput.manualRating
           : 2.5
     };
 
@@ -593,15 +593,15 @@ function restorePreviousPlayerValues(previous) {
   }
 }
 
-function hasManualNote_(playerInput) {
+function hasManualRating_(playerInput) {
   return (
     playerInput &&
     Object.prototype
       .hasOwnProperty.call(
         playerInput,
-        "manualNote"
+        "manualRating"
       ) &&
-    playerInput.manualNote !== "" &&
-    playerInput.manualNote != null
+    playerInput.manualRating !== "" &&
+    playerInput.manualRating != null
   );
 }

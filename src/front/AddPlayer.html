@@ -177,7 +177,6 @@
                 type="hidden"
                 id="new-player-rating"
                 name="manualRating"
-                required
               >
 
               <div
@@ -280,8 +279,8 @@
 
     setPositionLevelValues("position4", player.position4);
 
-    if (isAdmin() && player.manualNote != null) {
-      setManualRating(Number(player.manualNote));
+    if (isAdmin() && player.manualRating != null) {
+      setManualRating(Number(player.manualRating));
     } else {
       resetManualRating();
     }
