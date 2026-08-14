@@ -1,4 +1,4 @@
-function generateTeams(selectedIds) {
+function generateTeams(selectedIds, adminToken) {
   Logger.log("selectedIds : " + selectedIds);
   const ss = SpreadsheetApp.getActiveSpreadsheet();
 
@@ -159,11 +159,14 @@ function generateTeams(selectedIds) {
   Logger.log("best teams :" + bestTeams);
   Logger.log("best raw average :" + bestRawAverages);
   Logger.log("best adj average :" + bestAdjAverages);
-  return {
+  
+  let result = {
     teams: bestTeams,
     rawAvg: bestRawAverages,
     adjAvg: bestAdjAverages
   };
+
+  return buildGenerationResponse_(result, isAdminSession(adminToken));
 }
 
 function assignPlayerToTeam(
@@ -241,4 +244,28 @@ function getPositionIndex(position) {
     case "BUT": return 4;
     default: return -1;
   }
+}
+
+function buildGenerationResponse_(result, admin) {
+  if (admin) {
+    return {
+      teams: result.teams,
+      rawAvg: result.rawAvg,
+      adjAvg: result.adjAvg,
+      canAnalyze: true
+    };
+  }
+
+  return {
+    canAnalyze: false,
+
+    teams: result.teams.map(team => {
+      return team.map(player => {
+        return {
+          name: player.name,
+          poste: player.poste
+        };
+      });
+    })
+  };
 }
