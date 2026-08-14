@@ -211,7 +211,6 @@
     resetPlayerForm();
     updatePlayerFormMode();
     showPlayerModal();
-    refreshPlayerFormAccess();
 
     const hasDesktopPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
@@ -252,6 +251,8 @@
   }
 
   function showPlayerModal() {
+    refreshPlayerFormAccess();
+
     document
       .getElementById("add-player-modal")
       .classList.remove("hidden");
