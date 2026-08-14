@@ -846,4 +846,25 @@
         repeat(2, minmax(0, 1fr));
     }
   }
+
+  /* =====================================================
+   ADMIN
+   ===================================================== */
+
+  .admin-login-card {
+    width: min(100%, 420px);
+  }
+
+  .admin-only.hidden {
+    display: none;
+  }
+
+  body.is-admin #admin-access-button {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  body.is-admin #admin-access-button:hover {
+    background: #bbf7d0;
+  }
 </style>

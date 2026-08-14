@@ -1,0 +1,335 @@
+<div
+  id="admin-login-modal"
+  class="modal-overlay hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="admin-login-title"
+>
+  <div class="modal-card admin-login-card">
+
+    <div class="modal-header">
+      <h2 id="admin-login-title">
+        Administration
+      </h2>
+
+      <button
+        type="button"
+        class="btn-icon"
+        onclick="closeAdminLoginModal()"
+        aria-label="Fermer"
+      >
+        ✕
+      </button>
+    </div>
+
+    <form
+      id="admin-login-form"
+      onsubmit="submitAdminLogin(event)"
+    >
+      <label class="form-field">
+        <span>Mot de passe</span>
+
+        <input
+          id="admin-password"
+          type="password"
+          required
+          autocomplete="current-password"
+        >
+      </label>
+
+      <div
+        id="admin-login-error"
+        class="form-error hidden"
+      ></div>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn-secondary"
+          onclick="closeAdminLoginModal()"
+        >
+          Annuler
+        </button>
+
+        <button
+          id="admin-login-submit"
+          type="submit"
+        >
+          Se connecter
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+
+<script>
+  const ADMIN_SESSION_STORAGE_KEY =
+    "footballAdminSession";
+
+  let adminSessionToken =
+    sessionStorage.getItem(
+      ADMIN_SESSION_STORAGE_KEY
+    ) || "";
+
+  let currentUserIsAdmin = false;
+
+
+  /**
+   * Called when the page loads.
+   */
+  function initializeAdminSession() {
+    if (!adminSessionToken) {
+      applyAdminState(false);
+      return;
+    }
+
+    google.script.run
+      .withSuccessHandler(function(context) {
+        if (!context.isAdmin) {
+          clearLocalAdminSession();
+        }
+
+        applyAdminState(
+          context.isAdmin
+        );
+      })
+      .withFailureHandler(function() {
+        clearLocalAdminSession();
+        applyAdminState(false);
+      })
+      .getAccessContext(
+        adminSessionToken
+      );
+  }
+
+
+  function isAdmin() {
+    return currentUserIsAdmin;
+  }
+
+
+  function getAdminSessionToken() {
+    return currentUserIsAdmin
+      ? adminSessionToken
+      : "";
+  }
+
+
+  function handleAdminAccessButton() {
+    if (currentUserIsAdmin) {
+      logoutCurrentAdmin();
+      return;
+    }
+
+    openAdminLoginModal();
+  }
+
+
+  function openAdminLoginModal() {
+    clearAdminLoginError();
+
+    document
+      .getElementById(
+        "admin-login-modal"
+      )
+      .classList.remove("hidden");
+
+    document
+      .getElementById(
+        "admin-password"
+      )
+      .value = "";
+  }
+
+
+  function closeAdminLoginModal() {
+    document
+      .getElementById(
+        "admin-login-modal"
+      )
+      .classList.add("hidden");
+
+    clearAdminLoginError();
+  }
+
+
+  function submitAdminLogin(event) {
+    event.preventDefault();
+
+    clearAdminLoginError();
+
+    const password =
+      document
+        .getElementById(
+          "admin-password"
+        )
+        .value;
+
+    setAdminLoginLoading(true);
+
+    google.script.run
+      .withSuccessHandler(function(result) {
+        setAdminLoginLoading(false);
+
+        adminSessionToken =
+          result.token;
+
+        sessionStorage.setItem(
+          ADMIN_SESSION_STORAGE_KEY,
+          adminSessionToken
+        );
+
+        applyAdminState(true);
+
+        closeAdminLoginModal();
+      })
+      .withFailureHandler(function(error) {
+        setAdminLoginLoading(false);
+
+        showAdminLoginError(
+          error.message ||
+          "Connexion impossible."
+        );
+      })
+      .loginAdmin(password);
+  }
+
+
+  function logoutCurrentAdmin() {
+    const token =
+      adminSessionToken;
+
+    clearLocalAdminSession();
+    applyAdminState(false);
+
+    if (token) {
+      google.script.run
+        .logoutAdmin(token);
+    }
+  }
+
+
+  function clearLocalAdminSession() {
+    adminSessionToken = "";
+
+    sessionStorage.removeItem(
+      ADMIN_SESSION_STORAGE_KEY
+    );
+  }
+
+
+  function applyAdminState(isAdminValue) {
+    const stateChanged =
+      currentUserIsAdmin !==
+      isAdminValue;
+
+    currentUserIsAdmin =
+      isAdminValue;
+
+    document.body.classList.toggle(
+      "is-admin",
+      isAdminValue
+    );
+
+    document
+      .querySelectorAll(".admin-only")
+      .forEach(element => {
+        element.classList.toggle(
+          "hidden",
+          !isAdminValue
+        );
+      });
+
+    const button =
+      document.getElementById(
+        "admin-access-button"
+      );
+
+    if (button) {
+      button.textContent =
+        isAdminValue
+          ? "🔓 Quitter admin"
+          : "🔐 Admin";
+    }
+
+    if (stateChanged) {
+      onAdminStateChanged();
+    }
+  }
+
+
+  function onAdminStateChanged() {
+    /*
+     * Existing generated teams could contain
+     * protected rating information.
+     */
+    if (
+      typeof invalidateGeneratedTeams ===
+      "function"
+    ) {
+      invalidateGeneratedTeams();
+    }
+
+    if (
+      typeof refreshPlayerFormAccess ===
+      "function"
+    ) {
+      refreshPlayerFormAccess();
+    }
+  }
+
+
+  function setAdminLoginLoading(
+    isLoading
+  ) {
+    const button =
+      document.getElementById(
+        "admin-login-submit"
+      );
+
+    button.disabled =
+      isLoading;
+
+    button.textContent =
+      isLoading
+        ? "Connexion..."
+        : "Se connecter";
+  }
+
+
+  function showAdminLoginError(message) {
+    const element =
+      document.getElementById(
+        "admin-login-error"
+      );
+
+    element.textContent =
+      message;
+
+    element.classList.remove(
+      "hidden"
+    );
+  }
+
+
+  function clearAdminLoginError() {
+    const element =
+      document.getElementById(
+        "admin-login-error"
+      );
+
+    element.textContent = "";
+
+    element.classList.add(
+      "hidden"
+    );
+  }
+
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initializeAdminSession
+  );
+</script>

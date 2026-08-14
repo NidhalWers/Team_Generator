@@ -16,6 +16,7 @@
     </div>
 
     <div class="top-right">
+      <button id="admin-access-button" type="button" class="btn-secondary" onclick="handleAdminAccessButton()">🔐 Admin</button>
       <button type="button" class="btn-secondary" onclick="openAddPlayerModal()">＋ Player</button>
       <button id="reopen-teams-button" type="button" class="btn-secondary hidden" onclick="reopenTeamsModal()">View
         teams</button>
@@ -31,6 +32,7 @@
   <?!= include('Player'); ?>
   <?!= include('Team'); ?>
   <?!= include('AddPlayer'); ?>
+  <?!= include('Admin'); ?>
 
   <div id="loader" class="loader-overlay" style="display:none;">
     <div class="spinner"></div>

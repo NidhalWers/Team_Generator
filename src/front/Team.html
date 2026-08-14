@@ -76,7 +76,7 @@
 
         showGenerationError("⚠️ An error occurred: " + (error.message || error));
       })
-      .generateTeams(selectedIds);
+      .generateTeams(selectedIds, getAdminSessionToken());
   }
 
 
@@ -116,7 +116,7 @@
           "An error occurred while generating teams."
         );
       })
-      .generateTeams(selectedIds);
+      .generateTeams(selectedIds, getAdminSessionToken());
   }
 
 
@@ -139,10 +139,25 @@
    */
   function displayTeams(result) {
     const teams = result.teams;
-    const rawAvg = result.rawAvg;
-    const adjAvg = result.adjAvg;
+    const canAnalyze = result.canAnalyze === true;
+
+    const rawAvg = result.rawAvg || [];
+    const adjAvg = result.adjAvg || [];
 
     teamsNotesVisible = false;
+
+    const analyzeButton =
+      document.getElementById(
+        "toggle-notes-button"
+      );
+
+    if (analyzeButton) {
+      analyzeButton.classList.toggle(
+        "hidden",
+        !canAnalyze
+      );
+    }
+
     updateToggleNotesButton();
 
     let html = "";
@@ -156,13 +171,22 @@
             </h3>
 
             <span class="team-player-count">
-              ${team.length} player${team.length > 1 ? "s" : ""}
+              ${team.length}
+              player${team.length > 1 ? "s" : ""}
             </span>
           </div>
+      `;
 
+      /*
+      * Ratings and averages are only rendered when
+      * the backend explicitly allows analysis.
+      */
+      if (canAnalyze) {
+        html += `
           <div class="team-avg hidden">
             <div class="team-average-line">
               <span>⭐ Raw average</span>
+
               <strong>
                 ${rawAvg[teamIndex].toFixed(2)} / 5
               </strong>
@@ -170,28 +194,65 @@
 
             <div class="team-average-line">
               <span>🔥 Adjusted average</span>
+
               <strong>
                 ${adjAvg[teamIndex].toFixed(2)} / 5
               </strong>
             </div>
           </div>
+        `;
+      }
 
-          <div class="team-players">
+      html += `
+        <div class="team-players">
       `;
 
       team.forEach(player => {
-        const diff =
-          player.adjustedRating - player.rawRating;
+        let ratingHtml = "";
 
-        let diffClass = "diff-neutral";
-        let diffText = "";
+        if (canAnalyze) {
+          const diff =
+            player.adjustedRating -
+            player.rawRating;
 
-        if (diff > 0.01) {
-          diffClass = "diff-positive";
-          diffText = `+${diff.toFixed(2)}`;
-        } else if (diff < -0.01) {
-          diffClass = "diff-negative";
-          diffText = diff.toFixed(2);
+          let diffClass =
+            "diff-neutral";
+
+          let diffText = "";
+
+          if (diff > 0.01) {
+            diffClass =
+              "diff-positive";
+
+            diffText =
+              `+${diff.toFixed(2)}`;
+          } else if (diff < -0.01) {
+            diffClass =
+              "diff-negative";
+
+            diffText =
+              diff.toFixed(2);
+          }
+
+          ratingHtml = `
+            <span class="adjusted-rating hidden">
+              <strong>
+                ${player.adjustedRating.toFixed(2)}
+              </strong>
+
+              ${
+                diffText
+                  ? `
+                    <span
+                      class="rating-diff ${diffClass}"
+                    >
+                      ${diffText}
+                    </span>
+                  `
+                  : ""
+              }
+            </span>
+          `;
         }
 
         html += `
@@ -206,22 +267,7 @@
               </span>
             </span>
 
-            <span class="adjusted-rating hidden">
-              <strong>
-                ${player.adjustedRating.toFixed(2)}
-              </strong>
-
-              ${diffText
-            ? `
-                    <span
-                      class="rating-diff ${diffClass}"
-                    >
-                      ${diffText}
-                    </span>
-                  `
-            : ""
-          }
-            </span>
+            ${ratingHtml}
           </div>
         `;
       });
@@ -237,6 +283,7 @@
       .innerHTML = html;
 
     hasGeneratedTeams = true;
+
     updateReopenTeamsButton();
   }
 

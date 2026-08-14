@@ -35,15 +35,26 @@ const PLAYER_POSITION_VALUES = [
  *   }
  * }}
  */
-function addPlayer(playerInput) {
+function addPlayer(playerInput, adminToken) {
   const lock = LockService.getDocumentLock();
 
   try {
     lock.waitLock(10000);
 
-    const normalizedInput = validateAndNormalizePlayerInput(
-      playerInput
-    );
+    const admin = isAdminSession(adminToken);
+    const requestedRatingChange = hasManualNote_(playerInput);
+
+    if (requestedRatingChange && !admin) {
+      throw new Error("Session administrateur invalide ou expirée.");
+    }
+
+    const inputToValidate = {
+      ...playerInput,
+
+      manualNote: admin ? playerInput.manualNote : 2.5
+    };
+
+    const normalizedInput = validateAndNormalizePlayerInput(inputToValidate);
 
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     const playersSheet = spreadsheet.getSheetByName(PLAYER_SHEET_NAME);
@@ -347,7 +358,8 @@ function setNotesWeightedFormula(sheet, rowNumber, formulaColumn, firstBooleanCo
 /**
  * Returns all editable information for one player.
  */
-function getPlayerById(playerId) {
+function getPlayerById(playerId, adminToken) {
+  const admin = isAdminSession(adminToken);
   const normalizedId = normalizePlayerIdForEdition(playerId);
 
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -372,7 +384,7 @@ function getPlayerById(playerId) {
     throw new Error(`Player not found: ${normalizedId}`);
   }
 
-  return {
+  let result = {
     id: normalizedId,
 
     name: String(playerSheet.getRange(playerRow, playerHeaders["Player"]).getValue() || ""),
@@ -380,16 +392,20 @@ function getPlayerById(playerId) {
     position1: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Position1"]).getValue()),
     position2: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Position2"]).getValue()),
     position3: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Position3"]).getValue()),
-    position4: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Position4"]).getValue()),
-
-    manualRating: Number(notesSheet.getRange(notesRow, notesHeaders[MANUAL_RATING_HEADER]).getValue())
+    position4: splitPositionCell(playerSheet.getRange(playerRow,playerHeaders["Position4"]).getValue())
   };
+
+  if (admin){
+    result.manualRating = Number(notesSheet.getRange(notesRow, notesHeaders[MANUAL_RATING_HEADER]).getValue())
+  }
+
+  return result;
 }
 
 /**
  * Updates an existing player in Players and Notes.
  */
-function updatePlayer(playerInput) {
+function updatePlayer(playerInput, adminToken) {
   const lock = LockService.getDocumentLock();
 
   lock.waitLock(30000);
@@ -401,9 +417,25 @@ function updatePlayer(playerInput) {
       throw new Error("Player information is missing.");
     }
 
+    const admin = isAdminSession(adminToken);
+    const requestedRatingChange = hasManualNote_(playerInput);
+
+    if (requestedRatingChange && !admin) {
+      throw new Error("Session administrateur invalide ou expirée.");
+    }
+
     const playerId = normalizePlayerIdForEdition(playerInput.id);
 
-    const normalizedInput = validateAndNormalizePlayerInput(playerInput);
+    const inputToValidate = {
+      ...playerInput,
+
+      manualNote:
+        admin
+          ? playerInput.manualNote
+          : 2.5
+    };
+
+    const normalizedInput = validateAndNormalizePlayerInput(inputToValidate);
 
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
 
@@ -458,7 +490,9 @@ function updatePlayer(playerInput) {
         playerSheet.getRange(playerRow, playerHeaders[header]).setValue(normalizedInput.positions[index]);
       });
 
-    notesSheet.getRange(notesRow, notesHeaders[MANUAL_RATING_HEADER]).setValue(normalizedInput.manualRating);
+    if (admin){
+      notesSheet.getRange(notesRow, notesHeaders[MANUAL_RATING_HEADER]).setValue(normalizedInput.manualRating);
+    }
 
     SpreadsheetApp.flush();
 
@@ -557,4 +591,17 @@ function restorePreviousPlayerValues(previous) {
       rollbackError
     );
   }
+}
+
+function hasManualNote_(playerInput) {
+  return (
+    playerInput &&
+    Object.prototype
+      .hasOwnProperty.call(
+        playerInput,
+        "manualNote"
+      ) &&
+    playerInput.manualNote !== "" &&
+    playerInput.manualNote != null
+  );
 }

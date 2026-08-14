@@ -148,7 +148,7 @@
                 </fieldset>
             </div>
 
-            <fieldset class="manual-rating-field">
+            <fieldset id="manual-rating-field" class="manual-rating-field">
               <legend>Manual rating</legend>
 
               <div
@@ -212,6 +212,7 @@
     resetPlayerForm();
     updatePlayerFormMode();
     showPlayerModal();
+    refreshPlayerFormAccess();
 
     const hasDesktopPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
@@ -248,7 +249,7 @@
           "Unable to load the player."
         );
       })
-      .getPlayerById(playerId);
+      .getPlayerById(playerId, getAdminSessionToken());
   }
 
   function showPlayerModal() {
@@ -279,7 +280,11 @@
 
     setPositionLevelValues("position4", player.position4);
 
-    setManualRating(Number(player.manualRating));
+    if (isAdmin() && player.manualNote != null) {
+      setManualRating(Number(player.manualNote));
+    } else {
+      resetManualRating();
+    }
 
     document
     .querySelectorAll(
@@ -305,6 +310,26 @@
         input.checked = true;
       }
     });
+  }
+
+  function refreshPlayerFormAccess() {
+    const ratingField =
+      document.getElementById(
+        "manual-rating-field"
+      );
+
+    if (!ratingField) {
+      return;
+    }
+
+    ratingField.classList.toggle(
+      "hidden",
+      !isAdmin()
+    );
+
+    if (!isAdmin()) {
+      resetManualRating();
+    }
   }
 
   function getSelectedPositions(levelName) {
@@ -407,7 +432,7 @@
         .getElementById("new-player-rating")
         .value;
 
-    if (!manualRatingValue) {
+    if (isAdmin() && !manualRatingValue) {
       showAddPlayerError(
         "The manual rating is required."
       );
@@ -437,9 +462,11 @@
       position3: getSelectedPositions("position3"),
 
       position4: getSelectedPositions("position4"),
-
-      manualRating: Number(manualRatingValue)
     };
+
+    if(isAdmin()) {
+      playerInput.manualRating = Number(manualRatingValue)
+    }
 
     if (isEditing) {
       playerInput.id =
@@ -477,9 +504,9 @@
         });
 
     if (isEditing) {
-      runner.updatePlayer(playerInput);
+      runner.updatePlayer(playerInput, getAdminSessionToken());
     } else {
-      runner.addPlayer(playerInput);
+      runner.addPlayer(playerInput, getAdminSessionToken());
     }
   }
 
